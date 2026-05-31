@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ফিফা বিশ্বকাপ ২০২৬ | FIFA World Cup 2026</title>
+<link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { font-family: 'SolaimanLipi', 'Kalpurush', serif; }
+  :root {
+    --gold: #FFD700;
+    --gold-dark: #c9a227;
+    --dark: #0a0e1a;
+    --darker: #060911;
+    --card: #111827;
+    --card2: #1a2235;
+    --accent: #00c9ff;
+    --green: #00e676;
+    --red: #ff1744;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  body { background: var(--dark); color: var(--text); margin:0; padding:0; overflow-x:hidden; }
+  
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #060911 0%, #0f172a 40%, #1a0a2e 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(0,201,255,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.06) 0%, transparent 50%);
+  }
+  .hero-pitch {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+    background: linear-gradient(to top, rgba(0,100,50,0.15), transparent);
+    overflow: hidden;
+  }
+  .hero-pitch::after {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; height: 300px;
+    border: 2px solid rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .trophy-glow {
+    text-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,215,0,0.3);
+    animation: pulse-gold 3s ease-in-out infinite;
+  }
+  @keyframes pulse-gold {
+    0%,100% { text-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,215,0,0.3); }
+    50% { text-shadow: 0 0 60px rgba(255,215,0,0.9), 0 0 120px rgba(255,215,0,0.5); }
+  }
+
+  /* TABS */
+  .tab-btn {
+    padding: 12px 28px;
+    border-radius: 40px;
+    border: 1.5px solid rgba(255,215,0,0.25);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'SolaimanLipi', serif;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    border-color: transparent;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.35);
+  }
+
+  /* CARDS */
+  .team-card {
+    background: linear-gradient(145deg, var(--card), var(--card2));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .team-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .team-card:hover { transform: translateY(-6px); border-color: rgba(255,215,0,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+  .team-card:hover::before { opacity: 1; }
+  .team-card.selected { border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.2); }
+
+  /* PLAYER CARD */
+  .player-card {
+    background: var(--card2);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .player-card:hover { transform: translateY(-3px); border-color: rgba(0,201,255,0.4); }
+  .player-img {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,215,0,0.4);
+    background: var(--card);
+    margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .pos-badge {
+    display: inline-block;
+    padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .pos-GK { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+  .pos-DEF { background: rgba(0,201,255,0.12); color: var(--accent); border: 1px solid rgba(0,201,255,0.25); }
+  .pos-MID { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+  .pos-FWD { background: rgba(255,23,68,0.12); color: var(--red); border: 1px solid rgba(255,23,68,0.25); }
+
+  /* SCHEDULE TABLE */
+  .match-row {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .match-row:hover { border-color: rgba(255,215,0,0.2); }
+  .match-live { border-color: rgba(0,230,118,0.5) !important; animation: live-pulse 2s infinite; }
+  @keyframes live-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,230,118,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(0,230,118,0); }
+  }
+  .match-finished { opacity: 0.75; }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    animation: blink 1s infinite;
+    display: inline-block;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .countdown-box {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(0,201,255,0.08);
+    border: 1px solid rgba(0,201,255,0.2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .score-display {
+    font-size: 22px; font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+
+  /* GROUP BADGE */
+  .group-badge {
+    background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,215,0,0.04));
+    border: 1px solid rgba(255,215,0,0.25);
+    color: var(--gold);
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 6px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--darker); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 3px; }
+
+  /* FLAG */
+  .flag-img { font-size: 32px; line-height: 1; }
+
+  /* LOADER */
+  .loader {
+    border: 3px solid rgba(255,215,0,0.2);
+    border-top: 3px solid var(--gold);
+    border-radius: 50%; width: 36px; height: 36px;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SECTION HEADER */
+  .section-divider {
+    display: flex; align-items: center; gap: 16px; margin: 24px 0 16px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+  }
+
+  /* FILTER BUTTONS */
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: var(--muted); cursor: pointer;
+    transition: all 0.2s; font-family: 'SolaimanLipi', serif;
+  }
+  .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .filter-btn.active { background: rgba(255,215,0,0.12); border-color: var(--gold); color: var(--gold); }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
+
+  .stats-bar {
+    background: linear-gradient(135deg, var(--card), var(--card2));
+    border-radius: 12px; padding: 14px 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<div class="hero py-10 px-4 text-center relative">
+  <div class="hero-pitch"></div>
+  <div class="relative z-10">
+    <div class="trophy-glow text-5xl mb-3">🏆</div>
+    <h1 class="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight">
+      ফিফা বিশ্বকাপ <span style="color:var(--gold)">২০২৬</span>
+    </h1>
+    <p class="text-base md:text-lg" style="color:var(--muted)">
+      কানাডা · মেক্সিকো · যুক্তরাষ্ট্র &nbsp;|&nbsp; ১১ জুন – ১৯ জুলাই ২০২৬
+    </p>
+    <div class="flex flex-wrap justify-center gap-3 mt-5 text-sm">
+      <div class="stats-bar text-center"><div style="color:var(--gold);font-size:22px;font-weight:900;">৪৮</div><div style="color:var(--muted);">দল</div></div>
+      <div class="stats-bar text-center"><div style="color:var(--accent);font-size:22px;font-weight:900;">১০৪</div><div style="color:var(--muted);">ম্যাচ</div></div>
+      <div class="stats-bar text-center"><div style="color:var(--green);font-size:22px;font-weight:900;">১৬</div><div style="color:var(--muted);">স্টেডিয়াম</div></div>
+      <div class="stats-bar text-center"><div style="color:#ff6b6b;font-size:22px;font-weight:900;">৩৯</div><div style="color:var(--muted);">দিন</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="sticky top-0 z-50 py-3 px-4" style="background: rgba(10,14,26,0.95); backdrop-filter:blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06);">
+  <div class="flex justify-center gap-3 flex-wrap">
+    <button class="tab-btn active" onclick="switchTab('teams')">⚽ দলসমূহ ও খেলোয়াড়</button>
+    <button class="tab-btn" onclick="switchTab('schedule')">📅 সময়সূচি</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="max-w-7xl mx-auto px-3 pb-16">
+
+  <!-- TEAMS TAB -->
+  <div id="tab-teams" class="fade-in">
+    <div id="teams-list-view">
+      <div class="section-divider mt-6">
+        <span style="color:var(--gold);font-weight:700;font-size:16px;">গ্রুপ নির্বাচন করুন</span>
+      </div>
+      <div id="group-filters" class="flex flex-wrap gap-2 mb-5 justify-center"></div>
+      <div id="teams-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div class="col-span-full flex justify-center py-10"><div class="loader"></div></div>
+      </div>
+    </div>
+    <!-- PLAYER VIEW -->
+    <div id="player-view" class="hidden fade-in">
+      <button onclick="backToTeams()" class="flex items-center gap-2 mt-5 mb-4 px-4 py-2 rounded-xl text-sm" style="background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.3);">
+        ← দলের তালিকায় ফিরুন
+      </button>
+      <div id="team-detail-header" class="flex items-center gap-4 mb-6 p-5 rounded-2xl" style="background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid rgba(255,215,0,0.2);"></div>
+      <div id="players-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE TAB -->
+  <div id="tab-schedule" class="hidden fade-in">
+    <div class="section-divider mt-6">
+      <span style="color:var(--gold);font-weight:700;font-size:16px;">ম্যাচ সময়সূচি</span>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="flex flex-wrap gap-2 mb-4 items-center">
+      <span style="color:var(--muted);font-size:13px;">ফিল্টার:</span>
+      <button class="filter-btn active" onclick="filterMatches('all',this)">সকল</button>
+      <button class="filter-btn" onclick="filterMatches('live',this)">🔴 লাইভ</button>
+      <button class="filter-btn" onclick="filterMatches('upcoming',this)">⏳ আসন্ন</button>
+      <button class="filter-btn" onclick="filterMatches('finished',this)">✅ সমাপ্ত</button>
+      <button class="filter-btn" onclick="filterMatches('group',this)">গ্রুপ পর্ব</button>
+      <button class="filter-btn" onclick="filterMatches('knockout',this)">নকআউট</button>
+    </div>
+
+    <!-- Search -->
+    <div class="relative mb-4">
+      <input id="match-search" type="text" placeholder="দল নাম বা গ্রুপ খুঁজুন..." oninput="searchMatches()" 
+        class="w-full px-4 py-3 rounded-xl text-sm outline-none" 
+        style="background:var(--card);border:1px solid rgba(255,255,255,0.1);color:var(--text);font-family:'SolaimanLipi',serif;">
+    </div>
+
+    <!-- Table header -->
+    <div class="hidden md:grid grid-cols-12 gap-2 px-4 py-2 mb-2 text-xs" style="color:var(--muted);">
+      <div class="col-span-1">#</div>
+      <div class="col-span-2">তারিখ</div>
+      <div class="col-span-1">সময়</div>
+      <div class="col-span-4 text-center">ম্যাচ</div>
+      <div class="col-span-2 text-center">গ্রুপ / রাউন্ড</div>
+      <div class="col-span-2 text-center">কাউন্টডাউন / ফলাফল</div>
+    </div>
+
+    <div id="schedule-list">
+      <div class="flex justify-center py-10"><div class="loader"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========= DATA =========
+const TEAMS_DATA = {
+  "A": [
+    {name:"মেক্সিকো", code:"MEX", flag:"🇲🇽", color:"#006847"},
+    {name:"দক্ষিণ আফ্রিকা", code:"RSA", flag:"🇿🇦", color:"#007A4D"},
+    {name:"দক্ষিণ কোরিয়া", code:"KOR", flag:"🇰🇷", color:"#003478"},
+    {name:"চেক প্রজাতন্ত্র", code:"CZE", flag:"🇨🇿", color:"#D7141A"},
+  ],
+  "B": [
+    {name:"কানাডা", code:"CAN", flag:"🇨🇦", color:"#FF0000"},
+    {name:"বসনিয়া ও হার্জেগোভিনা", code:"BIH", flag:"🇧🇦", color:"#003DA5"},
+    {name:"কাতার", code:"QAT", flag:"🇶🇦", color:"#8D1B3D"},
+    {name:"সুইজারল্যান্ড", code:"SUI", flag:"🇨🇭", color:"#FF0000"},
+  ],
+  "C": [
+    {name:"ব্রাজিল", code:"BRA", flag:"🇧🇷", color:"#009C3B"},
+    {name:"মরোক্কো", code:"MAR", flag:"🇲🇦", color:"#C1272D"},
+    {name:"হাইতি", code:"HAI", flag:"🇭🇹", color:"#00209F"},
+    {name:"স্কটল্যান্ড", code:"SCO", flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", color:"#003399"},
+  ],
+  "D": [
+    {name:"যুক্তরাষ্ট্র", code:"USA", flag:"🇺🇸", color:"#B22234"},
+    {name:"প্যারাগুয়ে", code:"PAR", flag:"🇵🇾", color:"#D52B1E"},
+    {name:"অস্ট্রেলিয়া", code:"AUS", flag:"🇦🇺", color:"#00843D"},
+    {name:"তুরস্ক", code:"TUR", flag:"🇹🇷", color:"#E30A17"},
+  ],
+  "E": [
+    {name:"জার্মানি", code:"GER", flag:"🇩🇪", color:"#000000"},
+    {name:"কুরাকাও", code:"CUW", flag:"🇨🇼", color:"#003DA5"},
+    {name:"আইভরি কোস্ট", code:"CIV", flag:"🇨🇮", color:"#F77F00"},
+    {name:"ইকুয়েডর", code:"ECU", flag:"🇪🇨", color:"#003893"},
+  ],
+  "F": [
+    {name:"নেদারল্যান্ডস", code:"NED", flag:"🇳🇱", color:"#FF6600"},
+    {name:"জাপান", code:"JPN", flag:"🇯🇵", color:"#BC002D"},
+    {name:"সুইডেন", code:"SWE", flag:"🇸🇪", color:"#006AA7"},
+    {name:"তিউনিসিয়া", code:"TUN", flag:"🇹🇳", color:"#E70013"},
+  ],
+  "G": [
+    {name:"বেলজিয়াম", code:"BEL", flag:"🇧🇪", color:"#000000"},
+    {name:"মিশর", code:"EGY", flag:"🇪🇬", color:"#CE1126"},
+    {name:"ইরান", code:"IRN", flag:"🇮🇷", color:"#239F40"},
+    {name:"নিউজিল্যান্ড", code:"NZL", flag:"🇳🇿", color:"#00247D"},
+  ],
+  "H": [
+    {name:"স্পেন", code:"ESP", flag:"🇪🇸", color:"#AA151B"},
+    {name:"কেপ ভার্দে", code:"CPV", flag:"🇨🇻", color:"#003893"},
+    {name:"সৌদি আরব", code:"KSA", flag:"🇸🇦", color:"#006C35"},
+    {name:"উরুগুয়ে", code:"URU", flag:"🇺🇾", color:"#5EB6E4"},
+  ],
+  "I": [
+    {name:"ফ্রান্স", code:"FRA", flag:"🇫🇷", color:"#002395"},
+    {name:"সেনেগাল", code:"SEN", flag:"🇸🇳", color:"#00853F"},
+    {name:"ইরাক", code:"IRQ", flag:"🇮🇶", color:"#CE1126"},
+    {name:"নরওয়ে", code:"NOR", flag:"🇳🇴", color:"#EF2B2D"},
+  ],
+  "J": [
+    {name:"আর্জেন্টিনা", code:"ARG", flag:"🇦🇷", color:"#74ACDF"},
+    {name:"আলজেরিয়া", code:"ALG", flag:"🇩🇿", color:"#006233"},
+    {name:"অস্ট্রিয়া", code:"AUT", flag:"🇦🇹", color:"#ED2939"},
+    {name:"জর্ডান", code:"JOR", flag:"🇯🇴", color:"#007A3D"},
+  ],
+  "K": [
+    {name:"পর্তুগাল", code:"POR", flag:"🇵🇹", color:"#006600"},
+    {name:"ডিআর কঙ্গো", code:"COD", flag:"🇨🇩", color:"#007FFF"},
+    {name:"উজবেকিস্তান", code:"UZB", flag:"🇺🇿", color:"#1EB53A"},
+    {name:"কলম্বিয়া", code:"COL", flag:"🇨🇴", color:"#FCD116"},
+  ],
+  "L": [
+    {name:"ইংল্যান্ড", code:"ENG", flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", color:"#CF142B"},
+    {name:"ক্রোয়েশিয়া", code:"CRO", flag:"🇭🇷", color:"#FF0000"},
+    {name:"ঘানা", code:"GHA", flag:"🇬🇭", color:"#006B3F"},
+    {name:"পানামা", code:"PAN", flag:"🇵🇦", color:"#DA121A"},
+  ]
+};
+
+const PLAYER_DATA = {
+  BRA: {
+    players: [
+      {name:"অ্যালিসন বেকার", pos:"GK", emoji:"🧤"},
+      {name:"এডেরসন", pos:"GK", emoji:"🧤"},
+      {name:"ড্যানিলো", pos:"DEF", emoji:"🛡"},
+      {name:"মার্কিনহোস", pos:"DEF", emoji:"🛡"},
+      {name:"থিয়াগো সিলভা", pos:"DEF", emoji:"🛡"},
+      {name:"রাফিনহা", pos:"MID", emoji:"⚡"},
+      {name:"ক্যাসেমিরো", pos:"MID", emoji:"⚡"},
+      {name:"লুকাস পাকেতা", pos:"MID", emoji:"⚡"},
+      {name:"ভিনিসিয়াস জুনিয়র", pos:"FWD", emoji:"⚽"},
+      {name:"রোড্রিগো", pos:"FWD", emoji:"⚽"},
+      {name:"এন্দ্রিক", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  ARG: {
+    players: [
+      {name:"এমিলিয়ানো মার্টিনেজ", pos:"GK", emoji:"🧤"},
+      {name:"নাহুয়েল মলিনা", pos:"DEF", emoji:"🛡"},
+      {name:"ক্রিস্টিয়ান রোমেরো", pos:"DEF", emoji:"🛡"},
+      {name:"লিসান্দ্রো মার্টিনেজ", pos:"DEF", emoji:"🛡"},
+      {name:"নিকোলাস তাগলিয়াফিকো", pos:"DEF", emoji:"🛡"},
+      {name:"রদ্রিগো দে পল", pos:"MID", emoji:"⚡"},
+      {name:"এনজো ফার্নান্দেজ", pos:"MID", emoji:"⚡"},
+      {name:"আলেক্সিস ম্যাক অ্যালিস্টার", pos:"MID", emoji:"⚡"},
+      {name:"লিওনেল মেসি", pos:"FWD", emoji:"⭐"},
+      {name:"খুলিয়ান আলভারেজ", pos:"FWD", emoji:"⚽"},
+      {name:"লাউতারো মার্টিনেজ", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  FRA: {
+    players: [
+      {name:"মাইক মাইগন্যান", pos:"GK", emoji:"🧤"},
+      {name:"পাভার্ড", pos:"DEF", emoji:"🛡"},
+      {name:"ভারানে", pos:"DEF", emoji:"🛡"},
+      {name:"উপামেকানো", pos:"DEF", emoji:"🛡"},
+      {name:"থিও হার্নান্দেজ", pos:"DEF", emoji:"🛡"},
+      {name:"অ্যাড্রিয়েন রাবিওট", pos:"MID", emoji:"⚡"},
+      {name:"অ্যান্টোয়েন গ্রিজম্যান", pos:"MID", emoji:"⚡"},
+      {name:"কিলিয়ান এমবাপ্পে", pos:"FWD", emoji:"⭐"},
+      {name:"অলিভিয়ার জিরু", pos:"FWD", emoji:"⚽"},
+      {name:"ওসমান দেম্বেলে", pos:"FWD", emoji:"⚽"},
+      {name:"মার্কাস তুরাম", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  ENG: {
+    players: [
+      {name:"জর্ডান পিকফোর্ড", pos:"GK", emoji:"🧤"},
+      {name:"কাইল ওয়াকার", pos:"DEF", emoji:"🛡"},
+      {name:"হ্যারি মাগুইরে", pos:"DEF", emoji:"🛡"},
+      {name:"জন স্টোনস", pos:"DEF", emoji:"🛡"},
+      {name:"ট্রেন্ট আলেকজান্ডার-আর্নল্ড", pos:"MID", emoji:"⚡"},
+      {name:"দেক্লান রাইস", pos:"MID", emoji:"⚡"},
+      {name:"জুড বেলিংহাম", pos:"MID", emoji:"⭐"},
+      {name:"ফিল ফোডেন", pos:"MID", emoji:"⚡"},
+      {name:"হ্যারি কেন", pos:"FWD", emoji:"⚽"},
+      {name:"বুকায়ো সাকা", pos:"FWD", emoji:"⚽"},
+      {name:"মার্কাস র‍্যাশফোর্ড", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  GER: {
+    players: [
+      {name:"ম্যানুয়েল নয়ার", pos:"GK", emoji:"🧤"},
+      {name:"অ্যান্টোনিও রুডিগার", pos:"DEF", emoji:"🛡"},
+      {name:"নিকলাস জুলে", pos:"DEF", emoji:"🛡"},
+      {name:"ডেভিড রাউম", pos:"DEF", emoji:"🛡"},
+      {name:"জোশুয়া কিমিচ", pos:"MID", emoji:"⚡"},
+      {name:"লিওন গোরেটজকা", pos:"MID", emoji:"⚡"},
+      {name:"জামাল মুসিয়ালা", pos:"MID", emoji:"⭐"},
+      {name:"টমাস মুলার", pos:"MID", emoji:"⚡"},
+      {name:"কাই হাভার্টজ", pos:"FWD", emoji:"⚽"},
+      {name:"লেরয় সানে", pos:"FWD", emoji:"⚽"},
+      {name:"ফ্লোরিয়ান ভার্টজ", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  ESP: {
+    players: [
+      {name:"ডেভিড রায়া", pos:"GK", emoji:"🧤"},
+      {name:"দানি কার্ভাহাল", pos:"DEF", emoji:"🛡"},
+      {name:"রদ্রি", pos:"MID", emoji:"⭐"},
+      {name:"পেদ্রি", pos:"MID", emoji:"⚡"},
+      {name:"গাভি", pos:"MID", emoji:"⚡"},
+      {name:"ফাবিয়ান রুইজ", pos:"MID", emoji:"⚡"},
+      {name:"মার্টিন জুবিমেন্দি", pos:"MID", emoji:"⚡"},
+      {name:"লামিন ইয়ামাল", pos:"FWD", emoji:"⭐"},
+      {name:"নিকো উইলিয়ামস", pos:"FWD", emoji:"⚽"},
+      {name:"আলভারো মোরাতা", pos:"FWD", emoji:"⚽"},
+      {name:"দানি ওলমো", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  POR: {
+    players: [
+      {name:"রুই পাট্রিসিও", pos:"GK", emoji:"🧤"},
+      {name:"ক্রিস্টিয়ানো রোনালদো", pos:"FWD", emoji:"⭐"},
+      {name:"ব্রুনো ফার্নান্দেজ", pos:"MID", emoji:"⚡"},
+      {name:"রুবেন নেভেস", pos:"MID", emoji:"⚡"},
+      {name:"বার্নার্ডো সিলভা", pos:"MID", emoji:"⚡"},
+      {name:"জোয়াও ক্যান্সেলো", pos:"DEF", emoji:"🛡"},
+      {name:"পেপে", pos:"DEF", emoji:"🛡"},
+      {name:"রুবেন ডায়াজ", pos:"DEF", emoji:"🛡"},
+      {name:"রাফায়েল লিও", pos:"FWD", emoji:"⚽"},
+      {name:"জোয়াও ফেলিক্স", pos:"FWD", emoji:"⚽"},
+      {name:"গনকালো রামোস", pos:"FWD", emoji:"⚽"},
+    ]
+  },
+  NED: {
+    players: [
+      {name:"বার্ট ভার্ব্রুগেন", pos:"GK", emoji:"🧤"},
+      {name:"ডেনজেল ডামফ্রিজ", pos:"DEF", emoji:"🛡"},
+      {name:"ভার্জিল ভ্যান ডাইক", pos:"DEF", emoji:"🛡"},
+      {name:"ম্যাথিস ডি লিখট", pos:"DEF", emoji:"🛡"},
+      {name:"ফ্রেংকি দে ইয়ং", pos:"MID", emoji:"⭐"},
+      {name:"টাইরেল মালাসিয়া", pos:"DEF", emoji:"🛡"},
+      {name:"কডি গাকপো", pos:"FWD", emoji:"⚽"},
+      {name:"মেমফিস ডেপাই", pos:"FWD", emoji:"⚽"},
+      {name:"ওয়াউট ওয়েখর্স্ট", pos:"FWD", emoji:"⚽"},
+      {name:"দাভি পাউলো", pos:"MID", emoji:"⚡"},
+      {name:"নাথান আকে", pos:"DEF", emoji:"🛡"},
+    ]
+  },
+};
+
+// MATCH DATA from openfootball API
+let allMatches = [];
+let currentFilter = 'all';
+let selectedTeam = null;
+
+const TEAM_NAME_BN = {
+  "Mexico":"মেক্সিকো","South Africa":"দক্ষিণ আফ্রিকা","South Korea":"দক্ষিণ কোরিয়া",
+  "Czech Republic":"চেক প্রজাতন্ত্র","Canada":"কানাডা","Qatar":"কাতার","Switzerland":"সুইজারল্যান্ড",
+  "Brazil":"ব্রাজিল","Morocco":"মরোক্কো","Haiti":"হাইতি","Scotland":"স্কটল্যান্ড",
+  "USA":"যুক্তরাষ্ট্র","Paraguay":"প্যারাগুয়ে","Australia":"অস্ট্রেলিয়া","Turkey":"তুরস্ক",
+  "Germany":"জার্মানি","Curaçao":"কুরাকাও","Ivory Coast":"আইভরি কোস্ট","Ecuador":"ইকুয়েডর",
+  "Netherlands":"নেদারল্যান্ডস","Japan":"জাপান","Sweden":"সুইডেন","Tunisia":"তিউনিসিয়া",
+  "Belgium":"বেলজিয়াম","Egypt":"মিশর","Iran":"ইরান","New Zealand":"নিউজিল্যান্ড",
+  "Spain":"স্পেন","Cape Verde":"কেপ ভার্দে","Saudi Arabia":"সৌদি আরব","Uruguay":"উরুগুয়ে",
+  "France":"ফ্রান্স","Senegal":"সেনেগাল","Iraq":"ইরাক","Norway":"নরওয়ে",
+  "Argentina":"আর্জেন্টিনা","Algeria":"আলজেরিয়া","Austria":"অস্ট্রিয়া","Jordan":"জর্ডান",
+  "Portugal":"পর্তুগাল","DR Congo":"ডিআর কঙ্গো","Uzbekistan":"উজবেকিস্তান","Colombia":"কলম্বিয়া",
+  "England":"ইংল্যান্ড","Croatia":"ক্রোয়েশিয়া","Ghana":"ঘানা","Panama":"পানামা",
+  "Bosnia & Herzegovina":"বসনিয়া ও হার্জেগোভিনা","Bosnia and Herzegovina":"বসনিয়া ও হার্জেগোভিনা",
+};
+
+const TEAM_FLAGS = {
+  "Mexico":"🇲🇽","South Africa":"🇿🇦","South Korea":"🇰🇷","Czech Republic":"🇨🇿",
+  "Canada":"🇨🇦","Qatar":"🇶🇦","Switzerland":"🇨🇭","Brazil":"🇧🇷","Morocco":"🇲🇦",
+  "Haiti":"🇭🇹","Scotland":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","USA":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺",
+  "Turkey":"🇹🇷","Germany":"🇩🇪","Curaçao":"🇨🇼","Ivory Coast":"🇨🇮","Ecuador":"🇪🇨",
+  "Netherlands":"🇳🇱","Japan":"🇯🇵","Sweden":"🇸🇪","Tunisia":"🇹🇳","Belgium":"🇧🇪",
+  "Egypt":"🇪🇬","Iran":"🇮🇷","New Zealand":"🇳🇿","Spain":"🇪🇸","Cape Verde":"🇨🇻",
+  "Saudi Arabia":"🇸🇦","Uruguay":"🇺🇾","France":"🇫🇷","Senegal":"🇸🇳","Iraq":"🇮🇶",
+  "Norway":"🇳🇴","Argentina":"🇦🇷","Algeria":"🇩🇿","Austria":"🇦🇹","Jordan":"🇯🇴",
+  "Portugal":"🇵🇹","DR Congo":"🇨🇩","Uzbekistan":"🇺🇿","Colombia":"🇨🇴",
+  "England":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croatia":"🇭🇷","Ghana":"🇬🇭","Panama":"🇵🇦",
+  "Bosnia & Herzegovina":"🇧🇦","Bosnia and Herzegovina":"🇧🇦",
+};
+
+const ROUND_NAMES_BN = {
+  "Matchday 1":"গ্রুপ পর্ব - ম্যাচ ১","Matchday 2":"গ্রুপ পর্ব - ম্যাচ ২",
+  "Matchday 3":"গ্রুপ পর্ব - ম্যাচ ৩","Matchday 4":"গ্রুপ পর্ব - ম্যাচ ৪",
+  "Matchday 5":"গ্রুপ পর্ব - ম্যাচ ৫","Matchday 6":"গ্রুপ পর্ব - ম্যাচ ৬",
+  "Matchday 7":"গ্রুপ পর্ব - ম্যাচ ৭","Matchday 8":"গ্রুপ পর্ব - ম্যাচ ৮",
+  "Matchday 9":"গ্রুপ পর্ব - ম্যাচ ৯","Matchday 10":"গ্রুপ পর্ব - ম্যাচ ১০",
+  "Matchday 11":"গ্রুপ পর্ব - ম্যাচ ১১","Matchday 12":"গ্রুপ পর্ব - ম্যাচ ১২",
+  "Matchday 13":"গ্রুপ পর্ব - ম্যাচ ১৩","Matchday 14":"গ্রুপ পর্ব - ম্যাচ ১৪",
+  "Matchday 15":"গ্রুপ পর্ব - ম্যাচ ১৫","Matchday 16":"গ্রুপ পর্ব - ম্যাচ ১৬",
+  "Matchday 17":"গ্রুপ পর্ব - ম্যাচ ১৭","Matchday 18":"গ্রুপ পর্ব - ম্যাচ ১৮",
+  "Round of 32":"রাউন্ড অব ৩২","Round of 16":"রাউন্ড অব ১৬",
+  "Quarterfinal":"কোয়ার্টারফাইনাল","Semifinal":"সেমিফাইনাল",
+  "Final":"ফাইনাল","Match for third place":"তৃতীয় স্থান নির্ধারণী",
+};
+
+const MONTHS_BN = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+const DAYS_BN = ["রবিবার","সোমবার","মঙ্গলবার","বুধবার","বৃহস্পতিবার","শুক্রবার","শনিবার"];
+
+function toBengaliNum(n) {
+  return String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+}
+
+function formatDateBN(dateStr) {
+  const d = new Date(dateStr);
+  return `${DAYS_BN[d.getDay()]}, ${toBengaliNum(d.getDate())} ${MONTHS_BN[d.getMonth()]} ${toBengaliNum(d.getFullYear())}`;
+}
+
+// Parse UTC offset from time string like "13:00 UTC-6"
+function parseMatchDateTime(dateStr, timeStr) {
+  const match = timeStr.match(/(\d+):(\d+)\s+UTC([+-]\d+)/);
+  if (!match) return null;
+  const h = parseInt(match[1]), m = parseInt(match[2]), off = parseInt(match[3]);
+  // Convert to UTC
+  const utcH = h - off;
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCHours(utcH, m, 0, 0);
+  return d;
+}
+
+// Convert UTC to Bangladesh time (UTC+6)
+function toBDTime(utcDate) {
+  const bd = new Date(utcDate.getTime() + 6*3600*1000);
+  return bd;
+}
+
+function formatTimeBD(utcDate) {
+  const bd = toBDTime(utcDate);
+  let h = bd.getUTCHours(), m = bd.getUTCMinutes();
+  const ampm = h >= 12 ? 'অপরাহ্ণ' : 'পূর্বাহ্ণ';
+  if (h > 12) h -= 12;
+  if (h === 0) h = 12;
+  return `${toBengaliNum(h)}:${toBengaliNum(String(m).padStart(2,'0'))} ${ampm}`;
+}
+
+function getCountdown(utcDate) {
+  const now = new Date();
+  const diff = utcDate - now;
+  if (diff < -7200000) return {type:'finished', text:''};
+  if (diff < 0 && diff >= -7200000) return {type:'live', text:'খেলা চলছে'};
+  const days = Math.floor(diff / 86400000);
+  const hrs = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  if (days > 0) return {type:'upcoming', text:`${toBengaliNum(days)}দি ${toBengaliNum(hrs)}ঘ ${toBengaliNum(mins)}মি`};
+  if (hrs > 0) return {type:'upcoming', text:`${toBengaliNum(hrs)}ঘ ${toBengaliNum(mins)}মি ${toBengaliNum(secs)}সে`};
+  return {type:'upcoming', text:`${toBengaliNum(mins)}মি ${toBengaliNum(secs)}সে`};
+}
+
+function teamBN(t) {
+  return TEAM_NAME_BN[t] || t;
+}
+
+function teamFlag(t) {
+  return TEAM_FLAGS[t] || '🏳';
+}
+
+// ======== LOAD MATCHES =========
+async function loadMatches() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json');
+    const data = await res.json();
+    allMatches = (data.matches || []).map((m, i) => ({...m, _idx: i+1, _utc: parseMatchDateTime(m.date, m.time)}));
+    renderSchedule();
+    // Update countdowns every second
+    setInterval(updateCountdowns, 1000);
+  } catch(e) {
+    document.getElementById('schedule-list').innerHTML = '<div class="text-center py-8" style="color:var(--muted)">ডেটা লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।</div>';
+  }
+}
+
+let renderedMatchIds = new Set();
+
+function renderSchedule() {
+  const filtered = getFilteredMatches();
+  const el = document.getElementById('schedule-list');
+  if (!filtered.length) { el.innerHTML = '<div class="text-center py-8" style="color:var(--muted)">কোনো ম্যাচ পাওয়া যায়নি</div>'; return; }
+
+  el.innerHTML = filtered.map((m,idx) => {
+    const cd = m._utc ? getCountdown(m._utc) : {type:'upcoming',text:'?'};
+    const t1bn = teamBN(m.team1), t2bn = teamBN(m.team2);
+    const f1 = teamFlag(m.team1), f2 = teamFlag(m.team2);
+    const bdTime = m._utc ? formatTimeBD(m._utc) : '--';
+    const dateDisp = formatDateBN(m.date);
+    const roundBN = ROUND_NAMES_BN[m.round] || m.round;
+    const groupStr = m.group ? `<span class="group-badge">${m.group.replace('Group','গ্রুপ')}</span>` : '';
+
+    let statusHtml = '';
+    let rowClass = 'match-row';
+
+    if (cd.type === 'live') {
+      rowClass += ' match-live';
+      statusHtml = `<div class="flex items-center justify-center gap-2">
+        <span class="live-dot"></span>
+        <span style="color:var(--green);font-weight:700;font-size:13px;">লাইভ</span>
+        <span class="score-display">০ - ০</span>
+      </div>`;
+    } else if (cd.type === 'finished') {
+      rowClass += ' match-finished';
+      statusHtml = `<div class="text-center"><span style="color:var(--muted);font-size:12px;">✅ সমাপ্ত</span><br>
+        <span class="score-display" style="font-size:18px;">${m.score1 !== undefined ? toBengaliNum(m.score1)+' - '+toBengaliNum(m.score2) : '?'}</span></div>`;
+    } else {
+      statusHtml = `<div class="countdown-box" id="cd-${m._idx}">${cd.text}</div>`;
+    }
+
+    return `<div class="${rowClass}" id="match-${m._idx}">
+      <div class="px-4 py-3">
+        <!-- Mobile layout -->
+        <div class="md:hidden">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div style="font-size:11px;color:var(--muted);">${dateDisp}</div>
+              <div style="font-size:12px;color:var(--accent);">${bdTime} (বাংলাদেশ)</div>
+            </div>
+            <div>${groupStr}</div>
+          </div>
+          <div class="flex items-center justify-between gap-2 my-2">
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <span style="font-size:14px;font-weight:700;">${t1bn}</span>
+              <span style="font-size:22px;">${f1}</span>
+            </div>
+            <div style="color:var(--muted);font-size:13px;padding:0 8px;">বনাম</div>
+            <div class="flex items-center gap-2 flex-1">
+              <span style="font-size:22px;">${f2}</span>
+              <span style="font-size:14px;font-weight:700;">${t2bn}</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center mt-2">
+            <div style="font-size:11px;color:var(--muted);">📍 ${m.ground||''}</div>
+            <div>${statusHtml}</div>
+          </div>
+        </div>
+        <!-- Desktop layout -->
+        <div class="hidden md:grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-1 text-center" style="color:var(--muted);font-size:13px;">${toBengaliNum(idx+1)}</div>
+          <div class="col-span-2">
+            <div style="font-size:12px;font-weight:600;">${dateDisp.split(',')[0]}, ${toBengaliNum(new Date(m.date).getDate())} ${MONTHS_BN[new Date(m.date).getMonth()]}</div>
+            <div style="font-size:11px;color:var(--muted);">📍 ${m.ground||''}</div>
+          </div>
+          <div class="col-span-1 text-center" style="font-size:12px;color:var(--accent);">${bdTime}</div>
+          <div class="col-span-4">
+            <div class="flex items-center justify-center gap-3">
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <span style="font-size:14px;font-weight:700;">${t1bn}</span>
+                <span style="font-size:24px;">${f1}</span>
+              </div>
+              <div style="color:var(--muted);font-size:12px;min-width:28px;text-align:center;">বনাম</div>
+              <div class="flex items-center gap-2 flex-1">
+                <span style="font-size:24px;">${f2}</span>
+                <span style="font-size:14px;font-weight:700;">${t2bn}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2 text-center">
+            <div style="font-size:11px;color:var(--muted);">${roundBN}</div>
+            ${groupStr}
+          </div>
+          <div class="col-span-2 text-center">${statusHtml}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateCountdowns() {
+  const filtered = getFilteredMatches();
+  filtered.forEach(m => {
+    if (!m._utc) return;
+    const cd = getCountdown(m._utc);
+    const el = document.getElementById(`cd-${m._idx}`);
+    const row = document.getElementById(`match-${m._idx}`);
+    if (cd.type === 'upcoming' && el) {
+      el.textContent = cd.text;
+    } else if (cd.type === 'live' && row && !row.classList.contains('match-live')) {
+      renderSchedule(); // Re-render if status changed
+    }
+  });
+}
+
+function getFilteredMatches() {
+  const search = (document.getElementById('match-search')?.value || '').toLowerCase();
+  return allMatches.filter(m => {
+    const cd = m._utc ? getCountdown(m._utc) : {type:'upcoming'};
+    let pass = true;
+    if (currentFilter === 'live') pass = cd.type === 'live';
+    else if (currentFilter === 'upcoming') pass = cd.type === 'upcoming';
+    else if (currentFilter === 'finished') pass = cd.type === 'finished';
+    else if (currentFilter === 'group') pass = m.round && m.round.startsWith('Matchday');
+    else if (currentFilter === 'knockout') pass = m.round && !m.round.startsWith('Matchday');
+    if (search) {
+      const t = (teamBN(m.team1)+teamBN(m.team2)+m.team1+m.team2+(m.group||'')).toLowerCase();
+      pass = pass && t.includes(search);
+    }
+    return pass;
+  });
+}
+
+function filterMatches(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSchedule();
+}
+
+function searchMatches() { renderSchedule(); }
+
+// ======== TEAMS =========
+function renderTeams(groupFilter) {
+  const grid = document.getElementById('teams-grid');
+  let html = '';
+  for (const [g, teams] of Object.entries(TEAMS_DATA)) {
+    if (groupFilter && groupFilter !== 'all' && groupFilter !== g) continue;
+    teams.forEach(t => {
+      html += `<div class="team-card" onclick="showPlayers('${t.code}','${t.name}','${t.flag}','${g}')">
+        <div class="flag-img text-center mb-2">${t.flag}</div>
+        <div class="text-center font-bold text-sm leading-tight">${t.name}</div>
+        <div class="text-center mt-1"><span class="group-badge">গ্রুপ ${g}</span></div>
+        <div class="text-center mt-1" style="font-size:11px;color:var(--muted);">${t.code}</div>
+      </div>`;
+    });
+  }
+  grid.innerHTML = html || '<div style="color:var(--muted)">কোনো দল পাওয়া যায়নি</div>';
+}
+
+function renderGroupFilters() {
+  const el = document.getElementById('group-filters');
+  let html = '<button class="filter-btn active" onclick="setGroupFilter(\'all\',this)">সকল গ্রুপ</button>';
+  for (const g of Object.keys(TEAMS_DATA)) {
+    html += `<button class="filter-btn" onclick="setGroupFilter('${g}',this)">গ্রুপ ${g}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+function setGroupFilter(g, btn) {
+  document.querySelectorAll('#group-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTeams(g);
+}
+
+function showPlayers(code, name, flag, group) {
+  document.getElementById('teams-list-view').classList.add('hidden');
+  const pv = document.getElementById('player-view');
+  pv.classList.remove('hidden');
+
+  // Header
+  const teamObj = TEAMS_DATA[group]?.find(t=>t.code===code);
+  document.getElementById('team-detail-header').innerHTML = `
+    <div style="font-size:56px;line-height:1">${flag}</div>
+    <div>
+      <div style="font-size:22px;font-weight:900;">${name}</div>
+      <div class="flex items-center gap-2 mt-1">
+        <span class="group-badge">গ্রুপ ${group}</span>
+        <span style="color:var(--muted);font-size:13px;">${code}</span>
+      </div>
+    </div>`;
+
+  const players = PLAYER_DATA[code]?.players || [];
+  const pg = document.getElementById('players-grid');
+
+  if (!players.length) {
+    pg.innerHTML = `<div class="col-span-full text-center py-10" style="color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px;">⚽</div>
+      <div>এই দলের খেলোয়াড়দের তথ্য লোড হচ্ছে...</div>
+      <div style="font-size:13px;margin-top:8px;">FIFA-র অফিসিয়াল স্কোয়াড ঘোষণার পর আপডেট হবে।</div>
+    </div>`;
+    return;
+  }
+
+  const grouped = {GK:[], DEF:[], MID:[], FWD:[]};
+  players.forEach(p => { if (grouped[p.pos]) grouped[p.pos].push(p); });
+  const posBN = {GK:'গোলকিপার', DEF:'ডিফেন্ডার', MID:'মিডফিল্ডার', FWD:'ফরোয়ার্ড'};
+
+  let html = '';
+  for (const [pos, plist] of Object.entries(grouped)) {
+    if (!plist.length) continue;
+    html += `<div class="col-span-full mt-4 mb-2">
+      <span class="pos-${pos} pos-badge text-sm px-3 py-1">${posBN[pos]}</span>
+    </div>`;
+    plist.forEach(p => {
+      html += `<div class="player-card">
+        <div class="player-img">${p.emoji}</div>
+        <div style="font-size:13px;font-weight:700;line-height:1.3">${p.name}</div>
+        <div class="mt-2"><span class="pos-badge pos-${p.pos}">${posBN[p.pos]}</span></div>
+      </div>`;
+    });
+  }
+  pg.innerHTML = html;
+}
+
+function backToTeams() {
+  document.getElementById('player-view').classList.add('hidden');
+  document.getElementById('teams-list-view').classList.remove('hidden');
+}
+
+// ======== TABS =========
+function switchTab(tab) {
+  document.getElementById('tab-teams').classList.toggle('hidden', tab !== 'teams');
+  document.getElementById('tab-schedule').classList.toggle('hidden', tab !== 'schedule');
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tab==='teams') || (i===1 && tab==='schedule'));
+  });
+}
+
+// ======== INIT =========
+renderGroupFilters();
+renderTeams();
+loadMatches();
+</script>
+</body>
+</html>
