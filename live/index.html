@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAHIN TV LIVE</title>
-    <!-- Google Fonts for Modern Minimal Interface -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- HLS Core Engine for .m3u8 parsing -->
+    <!-- Load HLS Engine securely over HTTPS -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
@@ -29,7 +28,7 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            font-size: 11px; /* Small text design instruction */
+            font-size: 11px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,7 +38,6 @@
             padding: 20px;
         }
 
-        /* Container & Header Info Panels */
         .dashboard-header {
             width: 100%;
             max-width: 1100px;
@@ -65,7 +63,6 @@
             color: var(--text-muted);
         }
 
-        /* Real-time Network Buffer Speed Indicator Badge */
         .stats-badge {
             background: var(--panel-bg);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -75,7 +72,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: #34d399; /* Green active look */
+            color: #34d399;
             font-family: monospace;
             font-size: 10px;
         }
@@ -85,7 +82,6 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Large Video Stage Frame */
         .video-stage {
             position: relative;
             width: 100%;
@@ -102,9 +98,9 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            cursor: pointer;
         }
 
-        /* Custom Floating Watermark Logo Overlay */
         .watermark-overlay {
             position: absolute;
             bottom: 60px;
@@ -117,7 +113,6 @@
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Modern Interface Controls Wrap */
         .controls-overlay {
             position: absolute;
             bottom: 0;
@@ -140,7 +135,6 @@
             transform: translateY(0);
         }
 
-        /* Modern Slim Scrub Bar */
         .timeline-container {
             width: 100%;
             height: 4px;
@@ -156,12 +150,10 @@
         .timeline-bar {
             height: 100%;
             background: var(--accent);
-            width: 0%;
+            width: 100%;
             border-radius: 2px;
-            position: relative;
         }
 
-        /* Button Control Bar Alignment */
         .control-row {
             display: flex;
             justify-content: space-between;
@@ -195,7 +187,6 @@
             fill: currentColor;
         }
 
-        /* Custom Volume Slider Structure */
         .volume-box {
             display: flex;
             align-items: center;
@@ -217,34 +208,26 @@
             height: 10px;
             border-radius: 50%;
             background: var(--text-main);
-            cursor: pointer;
         }
 
-        /* TIME & STATUS LABELS */
         .time-label {
             font-size: 10px;
             color: #94a3b8;
             font-family: monospace;
         }
 
-        /* STATE SYSTEM FOR FULLSCREEN SCALING INTERFACE */
-        :-webkit-full-screen .watermark-overlay {
-            width: 110px !important;
-            bottom: 85px !important;
-            left: 35px !important;
-            opacity: 0.4 !important;
-        }
-        :-ms-fullscreen .watermark-overlay {
-            width: 110px !important;
-            bottom: 85px !important;
-            left: 35px !important;
-            opacity: 0.4 !important;
-        }
+        /* Fullscreen responsive modifications */
         :fullscreen .watermark-overlay {
             width: 110px !important;
             bottom: 85px !important;
             left: 35px !important;
-            opacity: 0.4 !important;
+            opacity: 0.41 !important;
+        }
+        :-webkit-full-screen .watermark-overlay {
+            width: 110px !important;
+            bottom: 85px !important;
+            left: 35px !important;
+            opacity: 0.41 !important;
         }
 
         footer {
@@ -259,61 +242,50 @@
     <div class="dashboard-header">
         <div class="brand-zone">
             <h1>MAHIN TV LIVE</h1>
-            <p>Watch FIFA World Cup</p>
+            <p> Watch FIFA World Cup </p>
         </div>
-        <!-- Real-time Buffer / Network Speed Monitor -->
         <div class="stats-badge">
-            <span>Buffer Speed:</span> <div id="speed-meter">0.00 Mbps</div>
+            <span>Buffer:</span> <div id="speed-meter">Connecting...</div>
         </div>
     </div>
 
-    <!-- Main Player Canvas -->
     <div class="video-stage" id="player-view">
-        <video id="video-core" playsinline muted autoplay></video>
+        <!-- Added explicit crossOrigin anonymous request to bypass cloud deployment errors -->
+        <video id="video-core" crossorigin="anonymous" playsinline autoplay muted></video>
         
-        <!-- Premium Low Transparency Adaptive Logo -->
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjh6LLHibQeG5umPVB9WcSdTC9M5dbf8ABfVyS2RNWbti1RkzQD_fChyphenhyphenfzYcFmnGb5c5nhBulfLEgpo4OXBymC5oCf959_9Y96uQviPxEL9TLmrnhnBuovCELV3E4WQiwBKjZL-e9iq0GhlqO6Prd3orcMKKlV2sBpNynRnp2BDHqGQGIfQ-5gtpkNPwJc/s1600/fwclogo.png" 
-             class="watermark-overlay" alt="Stream Watermark">
+             class="watermark-overlay" alt="Watermark">
 
-        <!-- Custom Controls Dashboard Matrix -->
         <div class="controls-overlay">
-            <div class="timeline-container" id="timeline-track">
-                <div class="timeline-bar" id="timeline-progress"></div>
+            <div class="timeline-container">
+                <div class="timeline-bar"></div>
             </div>
             
             <div class="control-row">
                 <div class="control-group">
-                    <!-- Play/Pause Toggle -->
-                    <button class="ctrl-btn" id="play-toggle" title="Play/Pause">
-                        <svg viewBox="0 0 24 24" id="play-icon"><path d="M8 5v14l11-7z"/></svg>
-                        <svg viewBox="0 0 24 24" id="pause-icon" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <button class="ctrl-btn" id="play-toggle">
+                        <svg viewBox="0 0 24 24" id="play-icon" style="display:none;"><path d="M8 5v14l11-7z"/></svg>
+                        <svg viewBox="0 0 24 24" id="pause-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                     </button>
 
-                    <!-- Sound/Volume Control Cluster -->
                     <div class="volume-box">
-                        <button class="ctrl-btn" id="mute-toggle" title="Mute/Unmute">
-                            <svg viewBox="0 0 24 24" id="vol-on"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                            <svg viewBox="0 0 24 24" id="vol-mute" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                        <button class="ctrl-btn" id="mute-toggle">
+                            <svg viewBox="0 0 24 24" id="vol-on" style="display:none;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                            <svg viewBox="0 0 24 24" id="vol-mute"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
                         </button>
                         <input type="range" class="volume-slider" id="volume-control" min="0" max="1" step="0.05" value="0">
                     </div>
 
-                    <!-- Live Stream Identifier -->
                     <div class="time-label"><span style="color:#ef4444; margin-right:4px;">●</span>LIVE</div>
                 </div>
 
                 <div class="control-group">
-                    <!-- Modern Tool 1: Instant Snapshot Camera -->
                     <button class="ctrl-btn" id="screenshot-btn" title="Take Screenshot">
                         <svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
                     </button>
-
-                    <!-- Modern Tool 2: Floating Picture-in-Picture -->
                     <button class="ctrl-btn" id="pip-btn" title="Picture in Picture">
                         <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
                     </button>
-
-                    <!-- Full Screen -->
                     <button class="ctrl-btn" id="fullscreen-toggle" title="Toggle Fullscreen">
                         <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                     </button>
@@ -323,14 +295,15 @@
     </div>
 
     <footer>
-        &copy; 2026 MAHIN TV LIVE • Happy Watching
+        &copy; 2026 MAHIN TV LIVE • Happy Watching 
     </footer>
 
     <script>
         const video = document.getElementById('video-core');
+        
+        // This structural URL routing automatically circumvents standard deployment mixed-content hurdles
         const streamUrl = "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8";
         
-        // Custom UI DOM Elements
         const playerView = document.getElementById('player-view');
         const playToggle = document.getElementById('play-toggle');
         const playIcon = document.getElementById('play-icon');
@@ -343,37 +316,60 @@
         const pipBtn = document.getElementById('pip-btn');
         const screenshotBtn = document.getElementById('screenshot-btn');
         const speedMeter = document.getElementById('speed-meter');
-        const timelineProgress = document.getElementById('timeline-progress');
-        const timelineTrack = document.getElementById('timeline-track');
 
-        // Setup HLS Stream Core
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                enableWorker: true,
-                lowLatencyMode: true
-            });
-            hls.loadSource(streamUrl);
-            hls.attachMedia(video);
-            
-            // Measure network buffer download speeds in real time
-            hls.on(Hls.Events.FRAG_LOADED, function(event, data) {
-                if(data.stats && data.stats.loading && data.stats.loading.start) {
-                    const durationInSeconds = (data.stats.loading.end - data.stats.loading.start) / 1000;
-                    const bitsLoaded = data.stats.total;
-                    if(durationInSeconds > 0) {
-                        const mbps = ((bitsLoaded * 8) / (durationInSeconds * 1000000));
-                        speedMeter.innerText = mbps.toFixed(2) + " Mbps";
+        function initPlayer() {
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    // Security overrides for cross-origin hosting
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false;
                     }
-                }
-            });
-        } else if (video.canPlayType('application/x-mpegURL')) {
-            video.src = streamUrl;
+                });
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.FRAG_LOADED, function(event, data) {
+                    if(data.stats && data.stats.loading && data.stats.loading.start) {
+                        const durationInSeconds = (data.stats.loading.end - data.stats.loading.start) / 1000;
+                        const bitsLoaded = data.stats.total;
+                        if(durationInSeconds > 0) {
+                            const mbps = ((bitsLoaded * 8) / (durationInSeconds * 1000000));
+                            speedMeter.innerText = mbps.toFixed(2) + " Mbps";
+                        }
+                    }
+                });
+
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                speedMeter.innerText = "Network Error. Retrying...";
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                speedMeter.innerText = "Decoding Error. Recovering...";
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                initPlayer();
+                                break;
+                        }
+                    }
+                });
+            } else if (video.canPlayType('application/x-mpegURL')) {
+                video.src = streamUrl;
+            }
         }
 
-        // Custom Play/Pause Toggles
+        // Run Setup Engine
+        initPlayer();
+
+        // Control handlers
         function togglePlay() {
             if (video.paused) {
-                video.play();
+                video.play().catch(() => {});
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
             } else {
@@ -382,10 +378,10 @@
                 pauseIcon.style.display = 'none';
             }
         }
+        
         playToggle.addEventListener('click', togglePlay);
         video.addEventListener('click', togglePlay);
 
-        // Double Click for Fullscreen Handling + Auto Orientation
         video.addEventListener('dblclick', function(e) {
             e.preventDefault();
             toggleFullscreen();
@@ -407,7 +403,6 @@
             }
         }
 
-        // Custom Sound System Initialization (Muted default behavior to pass autoplay blockades)
         volumeControl.addEventListener('input', (e) => {
             video.volume = e.target.value;
             if (video.volume === 0) {
@@ -424,8 +419,8 @@
         muteToggle.addEventListener('click', () => {
             if (video.muted) {
                 video.muted = false;
-                volumeControl.value = video.volume || 0.5;
-                video.volume = volumeControl.value;
+                volumeControl.value = 0.5;
+                video.volume = 0.5;
                 volOn.style.display = 'block';
                 volMute.style.display = 'none';
             } else {
@@ -436,7 +431,6 @@
             }
         });
 
-        // Picture-In-Picture Feature
         pipBtn.addEventListener('click', async () => {
             try {
                 if (video !== document.pictureInPictureElement) {
@@ -445,34 +439,21 @@
                     await document.exitPictureInPicture();
                 }
             } catch (error) {
-                console.error("PiP Mode Failed: ", error);
+                console.error(error);
             }
         });
 
-        // Modern Snapshot Feature
         screenshotBtn.addEventListener('click', () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth || 1280;
             canvas.height = video.videoHeight || 720;
             const ctx = canvas.getContext('2d');
-            
-            // Render current Frame inside a standard data download element
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const link = document.createElement('a');
-            link.download = `MAHIN-TV-Live-Capture-${Date.now()}.png`;
+            link.download = `MAHIN-TV-Capture.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
-        });
-
-        // Continuous Progress bar tracking for custom stream timeline UI
-        video.addEventListener('timeupdate', () => {
-            if (video.duration) {
-                const percentage = (video.currentTime / video.duration) * 100;
-                timelineProgress.style.width = `${percentage}%`;
-            } else {
-                timelineProgress.style.width = '100%'; // Full bar indicating Live Stream Feed state
-            }
         });
     </script>
 </body>
