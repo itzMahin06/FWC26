@@ -611,6 +611,56 @@ function loadStream(url) {
     video.play().catch(()=>{});
   }
 }
+  /* ──────────────────────────────────────────────
+   HLS LOADER
+────────────────────────────────────────────── */
+let hls = null;
+
+// CORS proxy for HTTP streams (mixed-content fix)
+const PROXY = 'https://corsproxy.io/?';
+
+function proxyUrl(url) {
+  // Only proxy http:// streams (not https)
+  if (url.startsWith('http://')) return PROXY + encodeURIComponent(url);
+  return url;
+}
+
+function loadStream(url) {
+  if (hls) { hls.destroy(); hls = null; }
+
+  // If it's a website URL (not a stream), open in new tab and show message
+  if (!url.endsWith('.m3u8') && !url.endsWith('.m3u') && !url.endsWith('.ts') && !url.includes('/live/') && !url.includes('/iptv/') && !url.includes('/hls/') && !url.includes('/play/')) {
+    showOSD('🌐 Opening in browser...');
+    window.open(url, '_blank');
+    return;
+  }
+
+  const finalUrl = proxyUrl(url);
+
+  if (Hls.isSupported()) {
+    hls = new Hls({
+      enableWorker: true,
+      lowLatencyMode: true,
+      xhrSetup: (xhr) => { xhr.withCredentials = false; }
+    });
+    hls.loadSource(finalUrl);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play().catch(()=>{});
+      buildQualMenu();
+    });
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        showOSD('⚠️ Stream error — retrying...');
+        setTimeout(() => { hls && hls.recoverMediaError(); }, 1500);
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = finalUrl;
+    video.play().catch(()=>{});
+  }
+}
+
 
 /* ──────────────────────────────────────────────
    QUALITY MENU
