@@ -11,8 +11,9 @@
 
   <style>
     :root {
-      --accent: #f43f5e;
-      --accent2: #fb923c;
+      /* VLC Media Player Signature Colors */
+      --accent: #ff8800; 
+      --accent2: #ffaa44;
       --bg-deep: #05070d;
       --bg-panel: #0d1320;
       --line: #1b2333;
@@ -23,7 +24,7 @@
       font-size: 0.85rem;
       background: var(--bg-deep);
       background-image:
-        radial-gradient(circle at 15% 0%, rgba(244,63,94,0.08), transparent 40%),
+        radial-gradient(circle at 15% 0%, rgba(255,136,0,0.08), transparent 40%),
         radial-gradient(circle at 85% 100%, rgba(56,189,248,0.06), transparent 45%);
     }
     .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; }
@@ -31,8 +32,8 @@
     .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a334a; border-radius: 4px; }
     .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
     .channel-card.active {
-      background: linear-gradient(135deg, rgba(244,63,94,0.12), rgba(13,19,32,0.6));
-      border-color: rgba(244,63,94,0.35);
+      background: linear-gradient(135deg, rgba(255,136,0,0.12), rgba(13,19,32,0.6));
+      border-color: rgba(255,136,0,0.35);
     }
 
     /* ─── VLC PLAYER SHELL ─── */
@@ -54,7 +55,7 @@
       background: #000;
     }
 
-    /* ─── WATERMARK — bottom-left, 50% opacity, persists in fullscreen ─── */
+    /* ─── WATERMARK ─── */
     #vlc-watermark {
       position: absolute;
       bottom: 2px;
@@ -83,10 +84,8 @@
       font-size: 8px; font-weight: 600; letter-spacing: 0.15em;
       color: var(--accent); text-transform: uppercase;
     }
-    /* watermark adapts when controls are hidden */
     #vlc-shell.ctrl-hidden #vlc-watermark { opacity: 0.35; }
 
-    /* fullscreen watermark adjustment */
     #vlc-shell:fullscreen #vlc-watermark,
     #vlc-shell:-webkit-full-screen #vlc-watermark { bottom: 84px; }
 
@@ -96,12 +95,12 @@
       bottom: 0; left: 0; right: 0;
       z-index: 50;
       padding: 0 12px 10px;
-      background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 65%, transparent 100%);
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 65%, transparent 100%);
       transition: opacity 0.35s ease;
     }
     #vlc-shell.ctrl-hidden #vlc-controls { opacity: 0; pointer-events: none; }
 
-    /* progress bar */
+    /* Progress Bar */
     #vlc-prog-wrap {
       position: relative;
       height: 20px;
@@ -139,7 +138,7 @@
       width: 13px; height: 13px;
       background: #fff;
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(244,63,94,0.8);
+      box-shadow: 0 0 8px rgba(255,136,0,0.8);
       left: 0%;
       opacity: 0;
       transition: opacity 0.15s;
@@ -147,7 +146,6 @@
     }
     #vlc-prog-wrap:hover #vlc-prog-thumb { opacity: 1; }
 
-    /* time tooltip */
     #vlc-tip {
       position: absolute;
       bottom: 24px;
@@ -162,18 +160,25 @@
       border: 1px solid var(--line);
     }
 
-    /* buttons row */
+    /* Controls Layout */
     #vlc-btn-row {
       display: flex;
       align-items: center;
-      gap: 1px;
+      justify-content: space-between;
+      width: 100%;
+      gap: 4px;
+    }
+    .vlc-left-controls, .vlc-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .vlc-btn {
       background: none;
       border: none;
-      color: rgba(255,255,255,0.82);
+      color: rgba(255,255,255,0.85);
       font-size: 14px;
-      padding: 5px 7px;
+      padding: 6px 8px;
       border-radius: 6px;
       cursor: pointer;
       transition: color 0.15s, background 0.15s;
@@ -190,25 +195,33 @@
       text-align: center;
     }
 
-    /* volume */
-    #vlc-vol-group { display: flex; align-items: center; gap: 5px; }
+    /* Modern Redesigned Volume Bar */
+    #vlc-vol-group { display: flex; align-items: center; gap: 6px; }
     #vlc-vol-slider {
-      -webkit-appearance: none; appearance: none;
-      width: 70px; height: 4px;
+      -webkit-appearance: none; 
+      appearance: none;
+      width: 65px; height: 5px;
       background: rgba(255,255,255,0.2);
       border-radius: 4px;
       outline: none;
       cursor: pointer;
+      background-image: linear-gradient(var(--accent), var(--accent));
+      background-size: 80% 100%;
+      background-repeat: no-repeat;
     }
     #vlc-vol-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 12px; height: 12px;
       border-radius: 50%;
-      background: #fff;
+      background: #ffffff;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
       cursor: pointer;
+      transition: transform 0.1s;
+    }
+    #vlc-vol-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
     }
 
-    /* time display */
     #vlc-time {
       font-size: 11px;
       color: rgba(255,255,255,0.7);
@@ -216,7 +229,6 @@
       margin-left: 4px;
       white-space: nowrap;
     }
-    .spacer { flex: 1; }
 
     /* ─── POPUPS ─── */
     .vlc-popup {
@@ -254,15 +266,15 @@
       z-index: 35;
       width: 64px; height: 64px;
       border-radius: 50%;
-      background: rgba(244,63,94,0.16);
-      border: 2px solid rgba(244,63,94,0.55);
+      background: rgba(255,136,0,0.16);
+      border: 2px solid rgba(255,136,0,0.55);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: opacity 0.25s, transform 0.2s, background 0.2s;
       backdrop-filter: blur(4px);
     }
     #vlc-bigplay i { font-size: 24px; color: #fff; margin-left: 3px; }
-    #vlc-bigplay:hover { background: rgba(244,63,94,0.28); transform: translate(-50%,-50%) scale(1.08); }
+    #vlc-bigplay:hover { background: rgba(255,136,0,0.28); transform: translate(-50%,-50%) scale(1.08); }
     #vlc-bigplay.hidden { opacity: 0; pointer-events: none; }
 
     /* ─── SPINNER ─── */
@@ -291,8 +303,8 @@
       display: none;
       align-items: center;
       gap: 6px;
-      background: rgba(244,63,94,0.18);
-      border: 1px solid rgba(244,63,94,0.4);
+      background: rgba(255,136,0,0.18);
+      border: 1px solid rgba(255,136,0,0.4);
       border-radius: 20px;
       padding: 4px 10px;
       font-size: 10px; font-weight: 700;
@@ -328,39 +340,7 @@
     }
     #vlc-osd.show { opacity: 1; }
 
-    /* ─── SHORTCUTS OVERLAY ─── */
-    #vlc-kb {
-      position: absolute; inset: 0;
-      z-index: 55;
-      background: rgba(5,7,13,0.88);
-      backdrop-filter: blur(14px);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-    }
-    #vlc-kb.open { display: flex; }
-    #vlc-kb h4 {
-      font-size: 12px; font-weight: 700; color: #fff;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .sc-row {
-      display: flex; gap: 14px; align-items: center;
-      font-size: 11px; color: rgba(255,255,255,0.6);
-    }
-    .sc-key {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid var(--line);
-      border-radius: 5px;
-      padding: 2px 9px;
-      font-weight: 600; color: #fff;
-      font-size: 11px;
-      min-width: 40px; text-align: center;
-    }
-
-    /* fullscreen fix */
+    /* Fullscreen Fix */
     #vlc-shell:fullscreen, #vlc-shell:-webkit-full-screen {
       border-radius: 0;
       aspect-ratio: unset;
@@ -374,12 +354,12 @@
 
   <header class="border-b border-[var(--line)] bg-[var(--bg-panel)]/70 backdrop-blur sticky top-0 z-50 px-5 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center shadow-lg shadow-rose-950/40">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg shadow-orange-950/40">
         <i class="fa-solid fa-satellite-dish text-white text-sm"></i>
       </div>
       <div>
-        <h1 class="font-display font-bold tracking-wide text-sm text-white leading-tight">MAHIN TV <span class="text-rose-500">LIVE</span></h1>
-        <p class="text-[10px] text-slate-500 tracking-widest uppercase">Watch Fifa World Cup</p>
+        <h1 class="font-display font-bold tracking-wide text-sm text-white leading-tight">MAHIN TV <span class="text-orange-500">LIVE</span></h1>
+        <p class="text-[10px] text-slate-500 tracking-widest uppercase">Watch Live Streams</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
@@ -395,13 +375,11 @@
   <main class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 max-w-[1600px] w-full mx-auto">
     <div class="lg:col-span-3 flex flex-col gap-3">
 
-      <!-- ═══ CUSTOM VLC-STYLE PLAYER ═══ -->
       <div id="vlc-shell" tabindex="0">
-        <video id="vlc-video" preload="auto"
+        <video id="vlc-video" preload="auto" playsinline webkit-playsinline
           poster="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200&auto=format&fit=crop">
         </video>
 
-        <!-- WATERMARK — bottom-left, 50% opacity, always visible incl. fullscreen -->
         <div id="vlc-watermark">
           <img id="wm-img" src="" alt="MAHIN TV">
           <div class="wm-text">
@@ -410,39 +388,19 @@
           </div>
         </div>
 
-        <!-- Live badge -->
         <div id="vlc-live"><div class="live-dot"></div><span>Live</span></div>
 
-        <!-- Big play button -->
         <div id="vlc-bigplay"><i class="fa-solid fa-play"></i></div>
 
-        <!-- Buffering spinner -->
         <div id="vlc-spin"><div class="spinner"></div></div>
 
-        <!-- OSD -->
         <div id="vlc-osd"></div>
 
-        <!-- Keyboard shortcuts overlay -->
-        <div id="vlc-kb">
-          <h4><i class="fa-solid fa-keyboard mr-2 text-rose-500"></i>Keyboard Shortcuts</h4>
-          <div class="sc-row"><span class="sc-key">Space</span><span>Play / Pause</span></div>
-          <div class="sc-row"><span class="sc-key">← →</span><span>Seek ±10s</span></div>
-          <div class="sc-row"><span class="sc-key">↑ ↓</span><span>Volume ±10%</span></div>
-          <div class="sc-row"><span class="sc-key">M</span><span>Mute / Unmute</span></div>
-          <div class="sc-row"><span class="sc-key">F</span><span>Fullscreen</span></div>
-          <div class="sc-row"><span class="sc-key">P</span><span>Picture-in-Picture</span></div>
-          <div class="sc-row"><span class="sc-key">?</span><span>Toggle this panel</span></div>
-          <div class="sc-row" style="margin-top:8px;color:rgba(255,255,255,0.35);font-size:10px;">Press any key to close</div>
-        </div>
-
-        <!-- Popups -->
         <div id="vlc-speed-pop" class="vlc-popup" style="right:128px;"></div>
         <div id="vlc-qual-pop"  class="vlc-popup" style="right:80px;"></div>
 
-        <!-- Controls -->
         <div id="vlc-controls">
           <div id="vlc-tip"></div>
-          <!-- Progress -->
           <div id="vlc-prog-wrap">
             <div id="vlc-prog-bg">
               <div id="vlc-prog-buf"></div>
@@ -450,33 +408,32 @@
             </div>
             <div id="vlc-prog-thumb"></div>
           </div>
-          <!-- Button row -->
           <div id="vlc-btn-row">
-            <button class="vlc-btn" id="vlc-play-btn" title="Play/Pause (Space)"><i class="fa-solid fa-play"></i></button>
-            <div id="vlc-vol-group">
-              <button class="vlc-btn" id="vlc-mute-btn" title="Mute (M)"><i class="fa-solid fa-volume-high"></i></button>
-              <input type="range" id="vlc-vol-slider" min="0" max="100" value="80" title="Volume">
+            <div class="vlc-left-controls">
+              <button class="vlc-btn" id="vlc-play-btn" title="Play/Pause"><i class="fa-solid fa-play"></i></button>
+              <div id="vlc-vol-group">
+                <button class="vlc-btn" id="vlc-mute-btn" title="Mute"><i class="fa-solid fa-volume-high"></i></button>
+                <input type="range" id="vlc-vol-slider" min="0" max="100" value="80" title="Volume">
+              </div>
+              <span id="vlc-time">0:00 / 0:00</span>
             </div>
-            <span id="vlc-time">0:00 / 0:00</span>
-            <div class="spacer"></div>
-            <button class="vlc-btn" id="vlc-speed-btn" title="Playback Speed">1×</button>
-            <button class="vlc-btn" id="vlc-qual-btn"  title="Quality">AUTO</button>
-            <button class="vlc-btn" id="vlc-kb-btn"    title="Keyboard shortcuts (?)"><i class="fa-solid fa-keyboard"></i></button>
-            <button class="vlc-btn" id="vlc-pip-btn"   title="Picture-in-Picture (P)"><i class="fa-solid fa-clone"></i></button>
-            <button class="vlc-btn" id="vlc-fs-btn"    title="Fullscreen (F)"><i class="fa-solid fa-expand"></i></button>
+            
+            <div class="vlc-right-controls">
+              <button class="vlc-btn" id="vlc-speed-btn" title="Playback Speed">1×</button>
+              <button class="vlc-btn" id="vlc-qual-btn"  title="Quality">AUTO</button>
+              <button class="vlc-btn" id="vlc-pip-btn"   title="Picture-in-Picture"><i class="fa-solid fa-clone"></i></button>
+              <button class="vlc-btn" id="vlc-fs-btn"    title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
+            </div>
           </div>
         </div>
       </div>
-      <!-- ═══ END PLAYER ═══ -->
-
-      <!-- Now Broadcasting -->
       <div class="bg-[var(--bg-panel)] border border-[var(--line)] p-3.5 rounded-2xl flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div id="now-logo" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-lg overflow-hidden border border-[var(--line)]">
             <i class="fa-solid fa-tv text-slate-500"></i>
           </div>
           <div>
-            <span class="text-[10px] uppercase font-bold tracking-widest text-rose-500 block mb-0.5">Now Broadcasting</span>
+            <span class="text-[10px] uppercase font-bold tracking-widest text-orange-500 block mb-0.5">Now Broadcasting</span>
             <h2 id="current-channel-title" class="text-sm font-semibold text-white font-display tracking-tight">—</h2>
           </div>
         </div>
@@ -492,12 +449,11 @@
       </div>
     </div>
 
-    <!-- Channel sidebar -->
     <div class="flex flex-col gap-3">
       <div class="bg-[var(--bg-panel)] border border-[var(--line)] p-3.5 rounded-2xl flex flex-col flex-1">
         <div class="mb-3">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-            <i class="fa-solid fa-list-ul text-rose-500"></i> Available Channels
+            <i class="fa-solid fa-list-ul text-orange-500"></i> Available Channels
           </h3>
           <p class="text-[10px] text-slate-500 mt-0.5">Select a channel to switch the live feed.</p>
         </div>
@@ -524,40 +480,16 @@ const channels = [
     id:"bangla", name: "Somoy TV", desc: "Bangladeshi TV Channel", url: "http://114.130.57.224:8080/Somoy-TV-3Mb/tracks-v1a1/mono.m3u8", region: "Bangladesh", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/SOMOY_TV_Logo.svg/500px-SOMOY_TV_Logo.svg.png"  
   },
   {
-      id: "bangla1", name: "T Sports HD", desc: "1080P High HD", url: "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8", region: "Bangladesh", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/T_Sports_logo.svg/500px-T_Sports_logo.svg.png"
+    id: "bangla1", name: "T Sports HD", desc: "1080P High HD", url: "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8", region: "Bangladesh", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/T_Sports_logo.svg/500px-T_Sports_logo.svg.png"
   },
   {
-      id:"bangla2", name:"GO 3 Sports 4K", desc:"Watch Fifa Hindi & 4K", url:"http://ytoxw6un.ottclub.xyz/iptv/KCUHA6DGYYVA8ZZFUPQV3KZH/6408/index.m3u8", region:"Lithunia", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Go3_Sport.svg/330px-Go3_Sport.svg.png"
+    id:"bangla2", name:"GO 3 Sports 4K", desc:"Watch Fifa Hindi & 4K", url:"http://ytoxw6un.ottclub.xyz/iptv/KCUHA6DGYYVA8ZZFUPQV3KZH/6408/index.m3u8", region:"Lithunia", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Go3_Sport.svg/330px-Go3_Sport.svg.png"
   },
   {
-      id:"bangla6", name:"Fussball 1 FHD", desc:"High Resulation FHD", url:"http://vca.easy747.com:80/live/donad220/8U01MGV/1438202.ts", region:"Spanish", logo:"https://upload.wikimedia.org/wikipedia/en/thumb/1/17/2026_FIFA_World_Cup_emblem.svg/330px-2026_FIFA_World_Cup_emblem.svg.png"
+    id:"main", name:"Caze TV", desc:"Youtube Live stream.", url: "https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/1080p-vtt/index.m3u8", region:"Brazil", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Caz%C3%A9TV_logo.svg/500px-Caz%C3%A9TV_logo.svg.png"
   },
   {
-      id:"bangla7", name:"World Cup 4K", desc:"Use if you high speed Internet", url:"http://starhub.pro/live/farhat-3379/67897-913379/745270.ts", region:"International", logo:"https://upload.wikimedia.org/wikipedia/en/thumb/1/17/2026_FIFA_World_Cup_emblem.svg/330px-2026_FIFA_World_Cup_emblem.svg.png"
-  },
-  {
-      id:"bangla5", name:"D Sports", desc:"Watch Bufferless stream", url:"http://190.108.83.69:8000/play/a05w/index.m3u", region:"Espanol", logo:"https://upload.wikimedia.org/wikipedia/commons/5/5a/DSports.png?_=20221114223321"
-  },
-  {
-      id:"bangla3", name:"Super Sports 4K", desc:"Watch Fifa world cup in 4K FHD", url:"http://rgkkw.live/live/1Aoen7elp5/IgMJ60tmAa/745195.ts", region:"Spanish", logo:"https://upload.wikimedia.org/wikipedia/en/6/66/Supersport2012.jpg"
-  },
-  {
-    id:"main", name:"Caze TV",
-    desc:"Youtube Live stream.",
-    url: "https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/1080p-vtt/index.m3u8",
-    region:"Brazil", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Caz%C3%A9TV_logo.svg/500px-Caz%C3%A9TV_logo.svg.png"
-  },
-  {
-    id:"sports", name:"BEIN Sports",
-    desc:"Watch Live",
-    url:"https://andro.226503.xyz/checklist/androstreamlivebs1.m3u8",
-    region:"Espanol", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Bein_sport_logo.png/1920px-Bein_sport_logo.png?_=20170126041215"
-  },
-  {
-    id:"news", name:"MAHIN News 24",
-    desc:"Rolling news demo slot — Deep TV stream.",
-    url:"https://byphdgllyk.gpcdn.net/hls/deeptotv/0_1/index.m3u8",
-    region:"Global", logo:"https://upload.wikimedia.org/wikipedia/commons/4/41/Apple_logo_black.svg"
+    id:"sports", name:"BEIN Sports", desc:"Watch Live", url:"https://andro.226503.xyz/checklist/androstreamlivebs1.m3u8", region:"Espanol", logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Bein_sport_logo.png/1920px-Bein_sport_logo.png?_=20170126041215"
   }
 ];
 
@@ -584,35 +516,52 @@ const volSlider = document.getElementById('vlc-vol-slider');
 const timeEl    = document.getElementById('vlc-time');
 const speedBtn  = document.getElementById('vlc-speed-btn');
 const qualBtn   = document.getElementById('vlc-qual-btn');
-const kbBtn     = document.getElementById('vlc-kb-btn');
 const pipBtn    = document.getElementById('vlc-pip-btn');
 const fsBtn     = document.getElementById('vlc-fs-btn');
 const speedPop  = document.getElementById('vlc-speed-pop');
 const qualPop   = document.getElementById('vlc-qual-pop');
-const kbPanel   = document.getElementById('vlc-kb');
 
 /* ──────────────────────────────────────────────
-   HLS LOADER
+   HLS LOADER (Stream Play Fix Built-in)
 ────────────────────────────────────────────── */
 let hls = null;
 
 function loadStream(url) {
   if (hls) { hls.destroy(); hls = null; }
+  spinEl.classList.add('show');
+
   if (Hls.isSupported()) {
-    hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+    hls = new Hls({ 
+      enableWorker: true, 
+      lowLatencyMode: true,
+      maxBufferLength: 10,
+      crossOrigin: true
+    });
     hls.loadSource(url);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       video.play().catch(()=>{});
       buildQualMenu();
     });
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            hls.recoverMediaError();
+            break;
+          default:
+            break;
+        }
+      }
+    });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = url;
     video.play().catch(()=>{});
   }
 }
- 
-
 
 /* ──────────────────────────────────────────────
    QUALITY MENU
@@ -629,11 +578,6 @@ function buildQualMenu() {
 function refreshQualLabel() {
   if (!hls) return;
   qualBtn.textContent = hls.currentLevel === -1 ? 'AUTO' : ((hls.levels[hls.currentLevel]?.height || '') + 'p') || 'HD';
-  qualPop.querySelectorAll('.vlc-pi').forEach((el, i) => {
-    const isSel = i === 0 ? hls.currentLevel === -1 : hls.currentLevel === i - 1;
-    el.classList.toggle('sel', isSel);
-    el.querySelector('.ck').style.visibility = isSel ? 'visible' : 'hidden';
-  });
 }
 
 /* ──────────────────────────────────────────────
@@ -646,11 +590,6 @@ function buildSpeedMenu() {
     addPopItem(speedPop, s + '×', s === 1, () => {
       video.playbackRate = s;
       speedBtn.textContent = s + '×';
-      speedPop.querySelectorAll('.vlc-pi').forEach(el => {
-        const isSel = el.dataset.spd == s;
-        el.classList.toggle('sel', isSel);
-        el.querySelector('.ck').style.visibility = isSel ? 'visible' : 'hidden';
-      });
       showOSD('Speed: ' + s + '×');
     }, s);
   });
@@ -672,7 +611,6 @@ function closePopups() { speedPop.classList.remove('open'); qualPop.classList.re
 speedBtn.onclick = e => { e.stopPropagation(); qualPop.classList.remove('open'); speedPop.classList.toggle('open'); };
 qualBtn.onclick  = e => { e.stopPropagation(); speedPop.classList.remove('open'); qualPop.classList.toggle('open'); };
 document.addEventListener('click', closePopups);
-shell.addEventListener('click', closePopups);
 
 /* ──────────────────────────────────────────────
    OSD
@@ -715,7 +653,7 @@ function pad(n) { return String(n).padStart(2,'0'); }
 video.addEventListener('timeupdate', () => {
   const live = !video.duration || !isFinite(video.duration);
   liveBadge.classList.toggle('show', live);
-  if (live) { timeEl.textContent = fmt(video.currentTime) + ' / ∞'; progFill.style.width = '0%'; return; }
+  if (live) { timeEl.textContent = fmt(video.currentTime) + ' / Live'; progFill.style.width = '100%'; return; }
   const pct = (video.currentTime / video.duration) * 100;
   progFill.style.width = pct + '%';
   progThumb.style.left = pct + '%';
@@ -733,44 +671,38 @@ function seekAt(e) {
   const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
   if (video.duration && isFinite(video.duration)) {
     video.currentTime = ratio * video.duration;
-    showOSD('⏩ ' + fmt(video.currentTime));
   }
 }
 progWrap.addEventListener('mousedown', e => { dragging = true; seekAt(e); });
 document.addEventListener('mousemove', e => { if (dragging) seekAt(e); });
 document.addEventListener('mouseup', () => { dragging = false; });
 
-progWrap.addEventListener('mousemove', e => {
-  if (!video.duration || !isFinite(video.duration)) return;
-  const r = progWrap.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-  tipEl.textContent = fmt(ratio * video.duration);
-  tipEl.style.left = Math.min(r.width - 44, Math.max(0, e.clientX - r.left - 18)) + 'px';
-  tipEl.style.display = 'block';
-});
-progWrap.addEventListener('mouseleave', () => { tipEl.style.display = 'none'; });
-
 /* ──────────────────────────────────────────────
-   VOLUME
+   VOLUME BAR WITH UPDATED SLIDER BACKGROUND
 ────────────────────────────────────────────── */
-video.volume = 0.8;
+function handleVolumeSlider() {
+  const val = volSlider.value;
+  video.volume = val / 100;
+  video.muted = false;
+  volSlider.style.backgroundSize = val + '% 100%';
+  updateVolIcon();
+}
+volSlider.addEventListener('input', handleVolumeSlider);
+
 function updateVolIcon() {
   const v = video.volume, m = video.muted;
   const ic = (m || v === 0) ? 'fa-volume-xmark' : v < 0.4 ? 'fa-volume-low' : 'fa-volume-high';
   muteBtn.innerHTML = `<i class="fa-solid ${ic}"></i>`;
 }
-volSlider.addEventListener('input', () => {
-  video.volume = volSlider.value / 100;
-  video.muted = false;
-  updateVolIcon();
-  showOSD('🔊 ' + Math.round(volSlider.value) + '%');
-});
+
 muteBtn.onclick = () => {
   video.muted = !video.muted;
   if (!video.muted) volSlider.value = video.volume * 100;
+  volSlider.style.backgroundSize = (video.muted ? 0 : volSlider.value) + '% 100%';
   updateVolIcon();
-  showOSD(video.muted ? '🔇 Muted' : '🔊 Unmuted');
 };
+// init slider background filling
+volSlider.style.backgroundSize = volSlider.value + '% 100%';
 updateVolIcon();
 
 /* ──────────────────────────────────────────────
@@ -786,53 +718,31 @@ fsBtn.onclick = toggleFS;
 function onFsChange() {
   const inFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
   fsBtn.innerHTML = inFs ? '<i class="fa-solid fa-compress"></i>' : '<i class="fa-solid fa-expand"></i>';
-  showOSD(inFs ? '⛶ Fullscreen' : '⊡ Windowed');
-  // Auto-rotate to landscape on mobile when entering fullscreen
-  if (screen.orientation && screen.orientation.lock) {
-    if (inFs) {
-      screen.orientation.lock('landscape').catch(() => {});
-    } else {
-      screen.orientation.unlock();
-    }
-  }
 }
 document.addEventListener('fullscreenchange', onFsChange);
 document.addEventListener('webkitfullscreenchange', onFsChange);
 
 /* ──────────────────────────────────────────────
-   PICTURE-IN-PICTURE
+   PICTURE-IN-PICTURE (Mobile Ready)
 ────────────────────────────────────────────── */
 pipBtn.onclick = async () => {
   try {
     if (document.pictureInPictureElement) {
       await document.exitPictureInPicture();
-      pipBtn.classList.remove('active');
-      showOSD('PiP off');
     } else {
       await video.requestPictureInPicture();
-      pipBtn.classList.add('active');
-      showOSD('📺 PiP on');
     }
   } catch { showOSD('PiP not supported'); }
 };
-video.addEventListener('leavepictureinpicture', () => pipBtn.classList.remove('active'));
 
 /* ──────────────────────────────────────────────
-   KEYBOARD SHORTCUTS PANEL
+   KEYBOARD CONTROLS
 ────────────────────────────────────────────── */
-kbBtn.onclick = e => { e.stopPropagation(); kbPanel.classList.toggle('open'); };
-kbPanel.addEventListener('click', () => kbPanel.classList.remove('open'));
-
 shell.addEventListener('keydown', e => {
-  if (kbPanel.classList.contains('open')) { kbPanel.classList.remove('open'); return; }
   switch(e.code) {
-    case 'Space':      e.preventDefault(); togglePlay(); break;
-    case 'ArrowUp':    e.preventDefault(); video.volume = Math.min(1,video.volume+0.1); volSlider.value=video.volume*100; updateVolIcon(); showOSD('🔊 '+Math.round(video.volume*100)+'%'); break;
-    case 'ArrowDown':  e.preventDefault(); video.volume = Math.max(0,video.volume-0.1); volSlider.value=video.volume*100; updateVolIcon(); showOSD('🔊 '+Math.round(video.volume*100)+'%'); break;
-    case 'KeyM': video.muted=!video.muted; updateVolIcon(); showOSD(video.muted?'🔇 Muted':'🔊 Unmuted'); break;
-    case 'KeyF': toggleFS(); break;
-    case 'KeyP': pipBtn.click(); break;
-    case 'Slash': if(e.shiftKey) kbPanel.classList.toggle('open'); break;
+    case 'Space': e.preventDefault(); togglePlay(); break;
+    case 'KeyM': e.preventDefault(); muteBtn.click(); break;
+    case 'KeyF': e.preventDefault(); toggleFS(); break;
   }
 });
 
@@ -842,13 +752,12 @@ shell.addEventListener('keydown', e => {
 let ctrlT;
 function showCtrl() {
   shell.classList.remove('ctrl-hidden');
-  shell.style.cursor = 'default';
   clearTimeout(ctrlT);
-  if (!video.paused) ctrlT = setTimeout(() => { shell.classList.add('ctrl-hidden'); shell.style.cursor = 'none'; }, 3000);
+  if (!video.paused) ctrlT = setTimeout(() => { shell.classList.add('ctrl-hidden'); }, 3000);
 }
 shell.addEventListener('mousemove', showCtrl);
-shell.addEventListener('mouseenter', showCtrl);
-shell.addEventListener('mouseleave', () => { clearTimeout(ctrlT); if (!video.paused) shell.classList.add('ctrl-hidden'); });
+shell.addEventListener('click', showCtrl);
+shell.addEventListener('touchstart', showCtrl);
 
 /* ──────────────────────────────────────────────
    CHANNEL RENDER & SWITCH
@@ -861,7 +770,7 @@ function renderChannels(activeId) {
     const row = document.createElement('button');
     row.type = 'button';
     row.className = `channel-card w-full text-left p-2.5 rounded-xl border transition-all flex items-center gap-3 ${
-      isActive ? 'active border-rose-500/40 shadow-lg shadow-rose-950/20'
+      isActive ? 'active border-orange-500/40 shadow-lg shadow-orange-950/20'
                : 'bg-slate-900/30 border-[var(--line)] hover:bg-slate-900/70 hover:border-slate-700'
     }`;
     row.onclick = () => { if (!isActive) switchChannel(ch); };
@@ -872,8 +781,8 @@ function renderChannels(activeId) {
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-2">
-          <span class="font-semibold tracking-tight text-xs truncate ${isActive?'text-rose-400':'text-slate-200'}">${ch.name}</span>
-          <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full flex-shrink-0 ${isActive?'bg-rose-500/20 text-rose-300':'bg-slate-800 text-slate-400'}">
+          <span class="font-semibold tracking-tight text-xs truncate ${isActive?'text-orange-400':'text-slate-200'}">${ch.name}</span>
+          <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full flex-shrink-0 ${isActive?'bg-orange-500/20 text-orange-300':'bg-slate-800 text-slate-400'}">
             <i class="fa-solid fa-globe mr-1"></i>${ch.region}
           </span>
         </div>
@@ -896,7 +805,7 @@ function switchChannel(ch) {
    INIT
 ────────────────────────────────────────────── */
 wmImg.src = BRAND.logo;
-renderChannels("main");
+renderChannels("bangla");
 switchChannel(channels[0]);
 shell.focus();
 </script>
