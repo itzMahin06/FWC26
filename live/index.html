@@ -584,21 +584,17 @@
 
 <div class="main">
 
-  <!-- PLAYER -->
   <div class="player-section">
     <div class="video-wrapper" id="videoWrapper">
       <video id="videoPlayer" playsinline></video>
 
-      <!-- Watermark -->
       <div class="watermark" id="watermark">⚡ MAHIN TV</div>
 
-      <!-- Loading -->
       <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loading-text">Connecting...</div>
       </div>
 
-      <!-- Error -->
       <div class="error-overlay" id="errorOverlay">
         <div class="error-icon">📡</div>
         <div class="error-text">Stream unavailable</div>
@@ -606,7 +602,6 @@
         <button class="retry-btn" onclick="retryStream()">↺ Retry</button>
       </div>
 
-      <!-- Controls -->
       <div class="controls" id="playerControls">
         <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlay()" title="Play/Pause">▶</button>
 
@@ -627,7 +622,6 @@
       </div>
     </div>
 
-    <!-- Meta bar -->
     <div class="player-meta">
       <div class="now-playing">
         <div class="now-playing-dot" id="nowDot" style="background:var(--muted)"></div>
@@ -640,7 +634,6 @@
     </div>
   </div>
 
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="search-box">
       <span class="search-icon">🔍</span>
@@ -793,6 +786,10 @@ function loadStream(url) {
   if (hls) { hls.destroy(); hls = null; }
   video.pause();
 
+  // SECURE PROXY ROUTING FOR VERCEL DEPLOYMENT
+  // Automatically encodes the unsafe HTTP m3u8 link through our Vercel API
+  const secureUrl = `/api/stream?url=${encodeURIComponent(url)}`;
+
   const isHLS = url.includes('.m3u8') || url.includes('.m3u');
   const isMPD = url.includes('.mpd');
   const isTS = url.endsWith('.ts') || url.includes('/ts') || url.includes('/live/');
@@ -806,7 +803,7 @@ function loadStream(url) {
       manifestLoadingTimeOut: 15000,
       manifestLoadingMaxRetry: 3,
     });
-    hls.loadSource(url);
+    hls.loadSource(secureUrl);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, (e, data) => {
       showLoading(false);
@@ -817,17 +814,15 @@ function loadStream(url) {
       if (data.fatal) handleStreamError();
     });
   } else if (video.canPlayType('application/vnd.apple.mpegurl') && isHLS) {
-    video.src = url;
+    video.src = secureUrl;
     video.load();
     video.play().then(() => showLoading(false)).catch(handleStreamError);
   } else if (isMPD) {
-    // DASH fallback - try direct src
-    video.src = url;
+    video.src = secureUrl;
     video.load();
     video.play().then(() => showLoading(false)).catch(handleStreamError);
   } else {
-    // Direct stream (TS, MP4, etc.)
-    video.src = url;
+    video.src = secureUrl;
     video.load();
     video.addEventListener('canplay', () => showLoading(false), { once: true });
     video.play().catch(() => {});
@@ -859,7 +854,6 @@ function retryStream() {
     hideError();
     showLoading(true);
     clearRetry();
-    // Try next channel if this fails
     loadStream(currentStreamUrl);
   }
 }
