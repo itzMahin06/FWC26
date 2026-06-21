@@ -208,15 +208,13 @@
   .error-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0,0,0,0.9);
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
     z-index: 20;
-    padding: 20px;
-    text-align: center;
   }
 
   .error-overlay.show { display: flex; }
@@ -224,21 +222,9 @@
   .error-icon { font-size: 28px; color: var(--danger); }
 
   .error-text {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--danger);
-    font-weight: 600;
-  }
-
-  .mixed-content-box {
-    display: none;
-    background: rgba(245, 166, 35, 0.1);
-    border: 1px solid var(--gold);
-    padding: 10px;
-    border-radius: 6px;
-    max-width: 80%;
-    margin-bottom: 8px;
-    color: #f5a623;
-    font-size: 11px;
+    font-weight: 500;
   }
 
   .retry-btn {
@@ -632,17 +618,8 @@
 
       <div class="error-overlay" id="errorOverlay">
         <div class="error-icon"><i class="fas fa-satellite-dish"></i></div>
-        <div class="error-text" id="errorText">Stream unavailable</div>
-        
-        <div class="mixed-content-box" id="mixedContentNotice">
-          <i class="fas fa-triangle-exclamation"></i> <strong>Chrome Blocked This Stream (Mixed Content)</strong><br>
-          This is an insecure HTTP or IP stream. To play it:<br>
-          1. Click the <i class="fas fa-sliders"></i> <strong>Tune/Lock icon</strong> next to the URL bar.<br>
-          2. Open <strong>Site Settings</strong>.<br>
-          3. Change <strong>Insecure Content</strong> to <strong>Allow</strong>, then refresh!
-        </div>
-
-        <div style="font-size:10px;color:var(--muted)" id="errorSubtext">Signal lost or geo-restricted</div>
+        <div class="error-text">Stream unavailable</div>
+        <div style="font-size:10px;color:var(--muted)">Signal lost or geo-restricted</div>
         <button class="retry-btn" onclick="retryStream()"><i class="fas fa-rotate-right"></i> Retry</button>
       </div>
 
@@ -699,11 +676,14 @@
 <script>
 // ─── M3U DATA ────────────────────────────────────────────────────────────────
 const M3U_URL = 'https://raw.githubusercontent.com/subirkumarpaul/Subirmaxpro/refs/heads/main/Subirmaxpro';
+// Open-source secure proxy fallback to clear Chrome mixed-content block dynamically
+const PROXY_SERVER = 'https://api.allorigins.win/raw?url=';
 
 let channels = [];
 let currentIndex = -1;
 let hls = null;
 let currentStreamUrl = '';
+let isUsingProxyFallback = false;
 let retryTimeout = null;
 let controlsTimeout = null;
 
@@ -822,6 +802,7 @@ function playChannel(idx) {
   currentIndex = idx;
   const ch = channels[idx];
   currentStreamUrl = ch.url;
+  isUsingProxyFallback = false;
 
   document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
   const el = document.getElementById('ch-' + idx);
@@ -848,15 +829,6 @@ function loadStream(url) {
   if (hls) { hls.destroy(); hls = null; }
   video.pause();
 
-  // Try to upgrade insecure URLs dynamically if hosted on HTTPS
-  if (window.location.protocol === 'https:' && url.startsWith('http://')) {
-    // If it's a domain name we try to upgrade to https, if it's an IP address we leave it as http
-    const isIP = /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(url);
-    if (!isIP) {
-       url = url.replace('http://', 'https://');
-    }
-  }
-
   const isHLS = url.includes('.m3u8') || url.includes('.m3u');
   const isMPD = url.includes('.mpd');
 
@@ -866,8 +838,8 @@ function loadStream(url) {
       maxMaxBufferLength: 60,
       enableWorker: true,
       lowLatencyMode: true,
-      manifestLoadingTimeOut: 15000,
-      manifestLoadingMaxRetry: 3,
+      manifestLoadingTimeOut: 10000,
+      manifestLoadingMaxRetry: 2,
     });
     hls.loadSource(url);
     hls.attachMedia(video);
@@ -877,16 +849,16 @@ function loadStream(url) {
       video.play().catch(() => {});
     });
     hls.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) handleStreamError(url);
+      if (data.fatal) handleStreamError();
     });
   } else if (video.canPlayType('application/vnd.apple.mpegurl') && isHLS) {
     video.src = url;
     video.load();
-    video.play().then(() => showLoading(false)).catch(() => handleStreamError(url));
+    video.play().then(() => showLoading(false)).catch(handleStreamError);
   } else if (isMPD) {
     video.src = url;
     video.load();
-    video.play().then(() => showLoading(false)).catch(() => handleStreamError(url));
+    video.play().then(() => showLoading(false)).catch(handleStreamError);
   } else {
     video.src = url;
     video.load();
@@ -894,27 +866,30 @@ function loadStream(url) {
     video.play().catch(() => {});
   }
 
-  video.onerror = () => handleStreamError(url);
+  video.onerror = handleStreamError;
 
   retryTimeout = setTimeout(() => {
     if (document.getElementById('loadingOverlay').classList.contains('hidden') === false) {
-      handleStreamError(url);
+      handleStreamError();
     }
-  }, 15000);
+  }, 12000);
 }
 
-function handleStreamError(url) {
-  showLoading(false);
+function handleStreamError() {
+  // If it's a raw IP stream or HTTP link and it fails on HTTPS, auto-route via Proxy system
+  const isBlockedProtocol = currentStreamUrl.startsWith('http://') || /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(currentStreamUrl);
   
-  const isHttpsPage = window.location.protocol === 'https:';
-  const isHttpOrIPStream = url.startsWith('http://') || /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(url);
-  
-  if (isHttpsPage && isHttpOrIPStream) {
-    showError(true); // show specific mixed content UI
-  } else {
-    showError(false);
+  if (window.location.protocol === 'https:' && isBlockedProtocol && !isUsingProxyFallback) {
+    isUsingProxyFallback = true;
+    clearRetry();
+    const secureProxyUrl = PROXY_SERVER + encodeURIComponent(currentStreamUrl);
+    console.log("Clearing Mixed Content Block. Auto-routing via proxy: ", secureProxyUrl);
+    loadStream(secureProxyUrl);
+    return;
   }
-  
+
+  showLoading(false);
+  showError();
   document.getElementById('nowDot').style.background = 'var(--danger)';
   clearRetry();
 }
@@ -928,6 +903,7 @@ function retryStream() {
     hideError();
     showLoading(true);
     clearRetry();
+    isUsingProxyFallback = false;
     loadStream(currentStreamUrl);
   }
 }
@@ -942,6 +918,12 @@ function populateQuality(levels) {
     opt.textContent = (l.height ? l.height + 'p' : '') + (l.bitrate ? ' ' + Math.round(l.bitrate/1000) + 'k' : '');
     sel.appendChild(opt);
   });
+}
+
+function setQuality(val) {
+  if (!hls) return;
+  hls.currentLevel = parseInt(val);
+  showToast('🎬 Quality: ' + (val == -1 ? 'Auto HD' : document.getElementById('qualitySelect').options[document.getElementById('qualitySelect').selectedIndex].text));
 }
 
 // ─── CONTROLS INTERACTIVE ────────────────────────────────────────────────────
@@ -1026,21 +1008,8 @@ function showLoading(v) {
   document.getElementById('loadingOverlay').classList.toggle('hidden', !v);
 }
 
-function showError(isMixedContent = false) {
+function showError() {
   document.getElementById('errorOverlay').classList.add('show');
-  const notice = document.getElementById('mixedContentNotice');
-  const subtext = document.getElementById('errorSubtext');
-  const text = document.getElementById('errorText');
-  
-  if (isMixedContent) {
-    text.textContent = 'Chrome Blocked Security';
-    notice.style.display = 'block';
-    subtext.style.display = 'none';
-  } else {
-    text.textContent = 'Stream unavailable';
-    notice.style.display = 'none';
-    subtext.style.display = 'block';
-  }
 }
 
 function hideError() {
