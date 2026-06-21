@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAHIN TV Live</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
@@ -134,6 +135,7 @@
     flex: 1;
     min-height: 0;
     box-shadow: 0 0 40px rgba(0,120,255,0.1);
+    transition: cursor 0.3s ease;
   }
 
   video {
@@ -206,23 +208,37 @@
   .error-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.95);
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
     z-index: 20;
+    padding: 20px;
+    text-align: center;
   }
 
   .error-overlay.show { display: flex; }
 
-  .error-icon { font-size: 32px; }
+  .error-icon { font-size: 28px; color: var(--danger); }
 
   .error-text {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--danger);
-    font-weight: 500;
+    font-weight: 600;
+  }
+
+  .mixed-content-box {
+    display: none;
+    background: rgba(245, 166, 35, 0.1);
+    border: 1px solid var(--gold);
+    padding: 10px;
+    border-radius: 6px;
+    max-width: 80%;
+    margin-bottom: 8px;
+    color: #f5a623;
+    font-size: 11px;
   }
 
   .retry-btn {
@@ -235,6 +251,9 @@
     cursor: pointer;
     font-weight: 600;
     margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     transition: background 0.2s;
   }
 
@@ -250,11 +269,19 @@
     align-items: center;
     gap: 10px;
     z-index: 15;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
   }
 
-  .video-wrapper:not(:hover) .controls { opacity: 0; }
-  .video-wrapper:hover .controls { opacity: 1; }
+  /* Idle controls state via JavaScript */
+  .video-wrapper.hide-controls {
+    cursor: none;
+  }
+  .video-wrapper.hide-controls .controls {
+    opacity: 0;
+    visibility: hidden;
+  }
 
   .ctrl-btn {
     background: rgba(255,255,255,0.1);
@@ -264,7 +291,7 @@
     width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     transition: background 0.2s, border-color 0.2s;
     flex-shrink: 0;
   }
@@ -349,7 +376,7 @@
 
   .now-playing-dot {
     width: 6px; height: 6px;
-    background: var(--success);
+    background: var(--muted);
     border-radius: 50%;
     animation: pulse 1.5s infinite;
     flex-shrink: 0;
@@ -380,6 +407,9 @@
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     transition: opacity 0.2s, transform 0.1s;
     white-space: nowrap;
   }
@@ -421,10 +451,10 @@
 
   .search-icon {
     position: absolute;
-    left: 10px; top: 50%;
+    left: 12px; top: 50%;
     transform: translateY(-50%);
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     pointer-events: none;
   }
 
@@ -471,7 +501,12 @@
     overflow: hidden;
     font-weight: 700;
     color: var(--accent);
+  }
+
+  .ch-icon .txt-ico {
     font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.5px;
   }
 
   .ch-info { flex: 1; min-width: 0; }
@@ -576,7 +611,7 @@
     MAHIN TV LIVE
   </div>
   <div class="header-right">
-    <span class="live-badge">● LIVE</span>
+    <span class="live-badge"><i class="fas fa-circle" style="font-size:8px; margin-right:4px;"></i>LIVE</span>
     <span id="channelCount">Loading...</span>
     <span>Dev: <strong style="color:var(--accent)">Mahin</strong></span>
   </div>
@@ -584,34 +619,38 @@
 
 <div class="main">
 
-  <!-- PLAYER -->
   <div class="player-section">
     <div class="video-wrapper" id="videoWrapper">
       <video id="videoPlayer" playsinline></video>
 
-      <!-- Watermark -->
       <div class="watermark" id="watermark">⚡ MAHIN TV</div>
 
-      <!-- Loading -->
       <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loading-text">Connecting...</div>
       </div>
 
-      <!-- Error -->
       <div class="error-overlay" id="errorOverlay">
-        <div class="error-icon">📡</div>
-        <div class="error-text">Stream unavailable</div>
-        <div style="font-size:10px;color:var(--muted)">Signal lost or geo-restricted</div>
-        <button class="retry-btn" onclick="retryStream()">↺ Retry</button>
+        <div class="error-icon"><i class="fas fa-satellite-dish"></i></div>
+        <div class="error-text" id="errorText">Stream unavailable</div>
+        
+        <div class="mixed-content-box" id="mixedContentNotice">
+          <i class="fas fa-triangle-exclamation"></i> <strong>Chrome Blocked This Stream (Mixed Content)</strong><br>
+          This is an insecure HTTP or IP stream. To play it:<br>
+          1. Click the <i class="fas fa-sliders"></i> <strong>Tune/Lock icon</strong> next to the URL bar.<br>
+          2. Open <strong>Site Settings</strong>.<br>
+          3. Change <strong>Insecure Content</strong> to <strong>Allow</strong>, then refresh!
+        </div>
+
+        <div style="font-size:10px;color:var(--muted)" id="errorSubtext">Signal lost or geo-restricted</div>
+        <button class="retry-btn" onclick="retryStream()"><i class="fas fa-rotate-right"></i> Retry</button>
       </div>
 
-      <!-- Controls -->
       <div class="controls" id="playerControls">
-        <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlay()" title="Play/Pause">▶</button>
+        <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlay()" title="Play/Pause"><i class="fas fa-play"></i></button>
 
         <div class="volume-wrap">
-          <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()" title="Mute">🔊</button>
+          <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()" title="Mute"><i class="fas fa-volume-high"></i></button>
           <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
         </div>
 
@@ -623,27 +662,25 @@
           <option value="-1">Auto HD</option>
         </select>
 
-        <button class="ctrl-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+        <button class="ctrl-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
       </div>
     </div>
 
-    <!-- Meta bar -->
     <div class="player-meta">
       <div class="now-playing">
-        <div class="now-playing-dot" id="nowDot" style="background:var(--muted)"></div>
+        <div class="now-playing-dot" id="nowDot"></div>
         <div>
           <div class="now-playing-name" id="nowPlayingName">Choose a channel to begin</div>
           <div class="now-playing-sub" id="nowPlayingSub">MAHIN TV Live • HD Streaming</div>
         </div>
       </div>
-      <button class="pip-btn" onclick="togglePiP()" title="Picture in Picture">⧉ PiP</button>
+      <button class="pip-btn" onclick="togglePiP()" title="Picture in Picture"><i class="fas fa-clone"></i> PiP</button>
     </div>
   </div>
 
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
       <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="filterChannels(this.value)">
     </div>
     <div class="channel-list-wrap">
@@ -668,6 +705,31 @@ let currentIndex = -1;
 let hls = null;
 let currentStreamUrl = '';
 let retryTimeout = null;
+let controlsTimeout = null;
+
+const video = document.getElementById('videoPlayer');
+const wrapper = document.getElementById('videoWrapper');
+
+// ─── AUTO-HIDE CONTROLS LOGIC ───────────────────────────────────────────────
+function resetControlsTimeout() {
+  wrapper.classList.remove('hide-controls');
+  clearTimeout(controlsTimeout);
+  
+  if (!video.paused) {
+    controlsTimeout = setTimeout(() => {
+      wrapper.classList.add('hide-controls');
+    }, 3000);
+  }
+}
+
+wrapper.addEventListener('mousemove', resetControlsTimeout);
+wrapper.addEventListener('touchmove', resetControlsTimeout);
+wrapper.addEventListener('touchstart', resetControlsTimeout);
+video.addEventListener('play', resetControlsTimeout);
+video.addEventListener('pause', () => {
+  wrapper.classList.remove('hide-controls');
+  clearTimeout(controlsTimeout);
+});
 
 // ─── PARSE M3U ────────────────────────────────────────────────────────────────
 async function loadChannels() {
@@ -677,7 +739,6 @@ async function loadChannels() {
     channels = parseM3U(text).filter(c => c.name.trim());
     document.getElementById('channelCount').textContent = channels.length + ' channels';
     renderChannels(channels);
-    // Auto-load first channel
     if (channels.length > 0) playChannel(0);
   } catch (e) {
     document.getElementById('channelCount').textContent = 'Load error';
@@ -702,21 +763,21 @@ function parseM3U(text) {
   return result;
 }
 
-// ─── ICONS ───────────────────────────────────────────────────────────────────
+// ─── FONTAWESOME CHANNEL ICONS ───────────────────────────────────────────────
 function getChannelIcon(name) {
   const n = name.toLowerCase();
-  if (n.includes('bein') || n.includes('beIN')) return '⚽';
-  if (n.includes('cricket') || n.includes('star') && n.includes('sport')) return '🏏';
-  if (n.includes('espn')) return '🏈';
-  if (n.includes('fox')) return '🦊';
-  if (n.includes('btv') || n.includes('bangladesh') || n.includes('🇧🇩')) return '🇧🇩';
-  if (n.includes('red bull')) return '🐂';
-  if (n.includes('tennis')) return '🎾';
-  if (n.includes('golf')) return '⛳';
-  if (n.includes('quran') || n.includes('sunnah')) return '☪️';
-  if (n.includes('world cup') || n.includes('fifa') || n.includes('fwc')) return '🏆';
-  if (n.includes('sport')) return '🏅';
-  return name.substring(0,2).toUpperCase();
+  if (n.includes('bein') || n.includes('beIN')) return '<i class="fas fa-soccer-ball"></i>';
+  if (n.includes('cricket') || (n.includes('star') && n.includes('sport'))) return '<i class="fas fa-baseball-bat-ball"></i>';
+  if (n.includes('espn')) return '<i class="fas fa-football"></i>';
+  if (n.includes('fox')) return '<i class="fas fa-tv"></i>';
+  if (n.includes('btv') || n.includes('bangladesh') || n.includes('🇧🇩')) return '<i class="fas fa-flag"></i>';
+  if (n.includes('red bull')) return '<i class="fas fa-bolt"></i>';
+  if (n.includes('tennis')) return '<i class="fas fa-table-tennis-paddle-ball"></i>';
+  if (n.includes('golf')) return '<i class="fas fa-golf-ball-tee"></i>';
+  if (n.includes('quran') || n.includes('sunnah')) return '<i class="fas fa-mosque"></i>';
+  if (n.includes('world cup') || n.includes('fifa') || n.includes('fwc')) return '<i class="fas fa-trophy"></i>';
+  if (n.includes('sport')) return '<i class="fas fa-medal"></i>';
+  return `<span class="txt-ico">${name.substring(0,2).toUpperCase()}</span>`;
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
@@ -731,7 +792,6 @@ function renderChannels(list) {
     div.onclick = () => playChannel(realIdx);
 
     const icon = getChannelIcon(ch.name);
-    const isText = icon.length <= 2 && !/\p{Emoji}/u.test(icon);
 
     div.innerHTML = `
       <div class="ch-icon">${icon}</div>
@@ -763,7 +823,6 @@ function playChannel(idx) {
   const ch = channels[idx];
   currentStreamUrl = ch.url;
 
-  // Update UI
   document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
   const el = document.getElementById('ch-' + idx);
   if (el) {
@@ -775,27 +834,31 @@ function playChannel(idx) {
   document.getElementById('nowPlayingSub').textContent = 'MAHIN TV Live • Channel ' + (idx+1);
   document.getElementById('ctrlLabel').textContent = ch.name;
   document.getElementById('nowDot').style.background = 'var(--success)';
-  document.getElementById('playPauseBtn').textContent = '⏸';
+  document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
 
   showLoading(true);
   hideError();
   clearRetry();
 
-  // Load stream
   loadStream(ch.url);
   showToast('📺 ' + ch.name);
 }
 
 function loadStream(url) {
-  const video = document.getElementById('videoPlayer');
-
-  // Destroy old HLS
   if (hls) { hls.destroy(); hls = null; }
   video.pause();
 
+  // Try to upgrade insecure URLs dynamically if hosted on HTTPS
+  if (window.location.protocol === 'https:' && url.startsWith('http://')) {
+    // If it's a domain name we try to upgrade to https, if it's an IP address we leave it as http
+    const isIP = /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(url);
+    if (!isIP) {
+       url = url.replace('http://', 'https://');
+    }
+  }
+
   const isHLS = url.includes('.m3u8') || url.includes('.m3u');
   const isMPD = url.includes('.mpd');
-  const isTS = url.endsWith('.ts') || url.includes('/ts') || url.includes('/live/');
 
   if (isHLS && Hls.isSupported()) {
     hls = new Hls({
@@ -814,38 +877,44 @@ function loadStream(url) {
       video.play().catch(() => {});
     });
     hls.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) handleStreamError();
+      if (data.fatal) handleStreamError(url);
     });
   } else if (video.canPlayType('application/vnd.apple.mpegurl') && isHLS) {
     video.src = url;
     video.load();
-    video.play().then(() => showLoading(false)).catch(handleStreamError);
+    video.play().then(() => showLoading(false)).catch(() => handleStreamError(url));
   } else if (isMPD) {
-    // DASH fallback - try direct src
     video.src = url;
     video.load();
-    video.play().then(() => showLoading(false)).catch(handleStreamError);
+    video.play().then(() => showLoading(false)).catch(() => handleStreamError(url));
   } else {
-    // Direct stream (TS, MP4, etc.)
     video.src = url;
     video.load();
     video.addEventListener('canplay', () => showLoading(false), { once: true });
     video.play().catch(() => {});
   }
 
-  video.onerror = handleStreamError;
+  video.onerror = () => handleStreamError(url);
 
-  // Timeout fallback
   retryTimeout = setTimeout(() => {
     if (document.getElementById('loadingOverlay').classList.contains('hidden') === false) {
-      handleStreamError();
+      handleStreamError(url);
     }
-  }, 20000);
+  }, 15000);
 }
 
-function handleStreamError() {
+function handleStreamError(url) {
   showLoading(false);
-  showError();
+  
+  const isHttpsPage = window.location.protocol === 'https:';
+  const isHttpOrIPStream = url.startsWith('http://') || /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(url);
+  
+  if (isHttpsPage && isHttpOrIPStream) {
+    showError(true); // show specific mixed content UI
+  } else {
+    showError(false);
+  }
+  
   document.getElementById('nowDot').style.background = 'var(--danger)';
   clearRetry();
 }
@@ -859,7 +928,6 @@ function retryStream() {
     hideError();
     showLoading(true);
     clearRetry();
-    // Try next channel if this fails
     loadStream(currentStreamUrl);
   }
 }
@@ -876,38 +944,30 @@ function populateQuality(levels) {
   });
 }
 
-function setQuality(val) {
-  if (!hls) return;
-  hls.currentLevel = parseInt(val);
-  showToast('🎬 Quality: ' + (val == -1 ? 'Auto HD' : document.getElementById('qualitySelect').options[document.getElementById('qualitySelect').selectedIndex].text));
-}
-
-// ─── CONTROLS ────────────────────────────────────────────────────────────────
-const video = document.getElementById('videoPlayer');
-
+// ─── CONTROLS INTERACTIVE ────────────────────────────────────────────────────
 function togglePlay() {
   if (video.paused) {
     video.play();
-    document.getElementById('playPauseBtn').textContent = '⏸';
+    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
   } else {
     video.pause();
-    document.getElementById('playPauseBtn').textContent = '▶';
+    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
   }
+  resetControlsTimeout();
 }
 
 function toggleMute() {
   video.muted = !video.muted;
-  document.getElementById('muteBtn').textContent = video.muted ? '🔇' : '🔊';
+  document.getElementById('muteBtn').innerHTML = video.muted ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
 }
 
 function setVolume(v) {
   video.volume = parseFloat(v);
   video.muted = v == 0;
-  document.getElementById('muteBtn').textContent = v == 0 ? '🔇' : '🔊';
+  document.getElementById('muteBtn').innerHTML = v == 0 ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
 }
 
 function toggleFullscreen() {
-  const wrapper = document.getElementById('videoWrapper');
   if (!document.fullscreenElement) {
     (wrapper.requestFullscreen || wrapper.webkitRequestFullscreen || wrapper.mozRequestFullScreen).call(wrapper);
   } else {
@@ -929,7 +989,7 @@ async function togglePiP() {
   }
 }
 
-// Keyboard shortcuts
+// Shortcuts
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
@@ -939,21 +999,26 @@ document.addEventListener('keydown', e => {
   if (e.code === 'ArrowDown' && currentIndex < channels.length - 1) playChannel(currentIndex + 1);
 });
 
-// ─── WATERMARK FULLSCREEN ────────────────────────────────────────────────────
-document.addEventListener('fullscreenchange', updateWatermarkForFullscreen);
-document.addEventListener('webkitfullscreenchange', updateWatermarkForFullscreen);
+// ─── FULLSCREEN & WATERMARK STATE ───────────────────────────────────────────
+document.addEventListener('fullscreenchange', updateFullscreenUI);
+document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
 
-function updateWatermarkForFullscreen() {
+function updateFullscreenUI() {
   const wm = document.getElementById('watermark');
+  const fsBtn = document.getElementById('fullscreenBtn');
+  
   if (document.fullscreenElement) {
     wm.style.fontSize = '20px';
     wm.style.bottom = '70px';
     wm.style.left = '22px';
+    fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
   } else {
     wm.style.fontSize = '';
     wm.style.bottom = '';
     wm.style.left = '';
+    fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
   }
+  resetControlsTimeout();
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -961,8 +1026,21 @@ function showLoading(v) {
   document.getElementById('loadingOverlay').classList.toggle('hidden', !v);
 }
 
-function showError() {
+function showError(isMixedContent = false) {
   document.getElementById('errorOverlay').classList.add('show');
+  const notice = document.getElementById('mixedContentNotice');
+  const subtext = document.getElementById('errorSubtext');
+  const text = document.getElementById('errorText');
+  
+  if (isMixedContent) {
+    text.textContent = 'Chrome Blocked Security';
+    notice.style.display = 'block';
+    subtext.style.display = 'none';
+  } else {
+    text.textContent = 'Stream unavailable';
+    notice.style.display = 'none';
+    subtext.style.display = 'block';
+  }
 }
 
 function hideError() {
