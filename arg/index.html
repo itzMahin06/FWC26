@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAHIN TV Live</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080c14;
+    --surface: #0f1623;
+    --card: #131b2e;
+    --border: #1e2d47;
+    --accent: #00c8ff;
+    --accent2: #0077ff;
+    --gold: #f5a623;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --success: #22c55e;
+    --danger: #ef4444;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 12px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(8,12,20,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); box-shadow: 0 0 0 0 rgba(0,200,255,0.5); }
+    50% { opacity:0.7; transform:scale(1.2); box-shadow: 0 0 0 6px rgba(0,200,255,0); }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .live-badge {
+    background: var(--danger);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity:1; }
+    50% { opacity:0.6; }
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+    padding: 12px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* PLAYER SECTION */
+  .player-section {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 76px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* VIDEO WRAPPER */
+  .video-wrapper {
+    position: relative;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    flex: 1;
+    min-height: 0;
+    box-shadow: 0 0 40px rgba(0,120,255,0.1);
+    transition: cursor 0.3s ease;
+  }
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+  }
+
+  /* WATERMARK */
+  .watermark {
+    position: absolute;
+    bottom: 52px;
+    left: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    text-shadow: 0 0 8px rgba(0,200,255,0.5);
+    letter-spacing: 1px;
+    pointer-events: none;
+    z-index: 10;
+    user-select: none;
+    transition: font-size 0.3s, bottom 0.3s, left 0.3s;
+  }
+
+  .video-wrapper:fullscreen .watermark,
+  .video-wrapper:-webkit-full-screen .watermark {
+    font-size: 20px;
+    bottom: 70px;
+    left: 22px;
+  }
+
+  /* LOADING OVERLAY */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 20;
+    transition: opacity 0.4s;
+  }
+
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(0,200,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ERROR OVERLAY */
+  .error-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 20;
+  }
+
+  .error-overlay.show { display: flex; }
+
+  .error-icon { font-size: 28px; color: var(--danger); }
+
+  .error-text {
+    font-size: 12px;
+    color: var(--danger);
+    font-weight: 500;
+  }
+
+  .retry-btn {
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+
+  .retry-btn:hover { background: var(--accent); }
+
+  /* CUSTOM CONTROLS */
+  .controls {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.92));
+    padding: 30px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 15;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Idle controls state via JavaScript */
+  .video-wrapper.hide-controls {
+    cursor: none;
+  }
+  .video-wrapper.hide-controls .controls {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .ctrl-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    border-radius: 5px;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(0,200,255,0.2);
+    border-color: var(--accent);
+  }
+
+  .ctrl-btn.active {
+    background: rgba(0,200,255,0.3);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .volume-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .volume-slider {
+    -webkit-appearance: none;
+    width: 70px; height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .ctrl-sep { flex: 1; }
+
+  .quality-select {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .quality-select option { background: #0f1623; color: #fff; }
+
+  .channel-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    font-weight: 500;
+  }
+
+  /* PLAYER META BAR */
+  .player-meta {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .now-playing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .now-playing-dot {
+    width: 6px; height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    flex-shrink: 0;
+  }
+
+  .now-playing-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }
+
+  .now-playing-sub {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .pip-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .pip-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* RIGHT SIDE */
+  .sidebar {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 76px);
+    position: sticky;
+    top: 64px;
+    overflow: hidden;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px 8px 32px;
+    border-radius: 7px;
+    font-size: 11px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 11px;
+    pointer-events: none;
+  }
+
+  .channel-list-wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .channel-list-wrap::-webkit-scrollbar { width: 3px; }
+  .channel-list-wrap::-webkit-scrollbar-track { background: transparent; }
+  .channel-list-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border: 1px solid transparent;
+    margin-bottom: 3px;
+  }
+
+  .channel-item:hover {
+    background: var(--card);
+    border-color: var(--border);
+  }
+
+  .channel-item.active {
+    background: linear-gradient(135deg, rgba(0,119,255,0.15), rgba(0,200,255,0.08));
+    border-color: rgba(0,200,255,0.3);
+  }
+
+  .ch-icon {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    overflow: hidden;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .ch-icon .txt-ico {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .ch-info { flex: 1; min-width: 0; }
+
+  .ch-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ch-tag {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ch-live-dot {
+    width: 5px; height: 5px;
+    background: var(--success);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ch-idx {
+    font-size: 9px;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 18px;
+    text-align: right;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(.34,1.56,.64,1);
+    max-width: 280px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    border-left: 3px solid var(--accent);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 6px;
+  }
+
+  footer span { color: var(--accent); font-weight: 600; }
+
+  /* SCROLLBAR GLOBAL */
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      padding: 8px;
+      gap: 8px;
+    }
+    .player-section {
+      grid-column: 1; grid-row: 1;
+      position: static;
+      height: auto;
+    }
+    .video-wrapper { aspect-ratio: 16/9; flex: none; height: auto; }
+    .sidebar {
+      grid-column: 1; grid-row: 2;
+      position: static;
+      max-height: 400px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    MAHIN TV LIVE
+  </div>
+  <div class="header-right">
+    <span class="live-badge"><i class="fas fa-circle" style="font-size:8px; margin-right:4px;"></i>LIVE</span>
+    <span id="channelCount">Loading...</span>
+    <span>Dev: <strong style="color:var(--accent)">Mahin</strong></span>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="player-section">
+    <div class="video-wrapper" id="videoWrapper">
+      <video id="videoPlayer" playsinline></video>
+
+      <div class="watermark" id="watermark">⚡ MAHIN TV</div>
+
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Connecting...</div>
+      </div>
+
+      <div class="error-overlay" id="errorOverlay">
+        <div class="error-icon"><i class="fas fa-satellite-dish"></i></div>
+        <div class="error-text">Stream unavailable</div>
+        <div style="font-size:10px;color:var(--muted)">Signal lost or geo-restricted</div>
+        <button class="retry-btn" onclick="retryStream()"><i class="fas fa-rotate-right"></i> Retry</button>
+      </div>
+
+      <div class="controls" id="playerControls">
+        <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlay()" title="Play/Pause"><i class="fas fa-play"></i></button>
+
+        <div class="volume-wrap">
+          <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()" title="Mute"><i class="fas fa-volume-high"></i></button>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+        </div>
+
+        <span class="channel-label" id="ctrlLabel">Select a channel</span>
+
+        <div class="ctrl-sep"></div>
+
+        <select class="quality-select" id="qualitySelect" onchange="setQuality(this.value)" title="Quality">
+          <option value="-1">Auto HD</option>
+        </select>
+
+        <button class="ctrl-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
+      </div>
+    </div>
+
+    <div class="player-meta">
+      <div class="now-playing">
+        <div class="now-playing-dot" id="nowDot"></div>
+        <div>
+          <div class="now-playing-name" id="nowPlayingName">Choose a channel to begin</div>
+          <div class="now-playing-sub" id="nowPlayingSub">MAHIN TV Live • HD Streaming</div>
+        </div>
+      </div>
+      <button class="pip-btn" onclick="togglePiP()" title="Picture in Picture"><i class="fas fa-clone"></i> PiP</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="search-box">
+      <span class="search-icon"><i class="fas fa-magnifying-glass"></i></span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="filterChannels(this.value)">
+    </div>
+    <div class="channel-list-wrap">
+      <div id="channelList"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2026 <span>MAHIN TV LIVE</span> — Developed by <span>Mahin</span> &nbsp;|&nbsp; All streams are manually configured links
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── MANUAL CHANNELS ARRAY ──────────────────────────────────────────────────
+// You can add, edit, or remove your channels manually right here!
+const channelsData = [
+  { 
+    name: "Somoy TV HD", 
+    url: "https://live.thebosstv.com:30443/dwlive/Somoy-TV/playlist.m3u8" 
+  },
+  { 
+    name: "Bein Sports Ten 1", 
+    url: "https://andro.226503.xyz/checklist/androstreamlivebs1.m3u8" 
+  },
+  { 
+    name: "T Sports Bangladesh", 
+    url: "https://live.tsports.com/mobile_hls/tsports_live_3/playlist.m3u8" 
+  }
+];
+
+// Open-source secure proxy fallback to clear Chrome mixed-content block dynamically
+const PROXY_SERVER = 'https://api.allorigins.win/raw?url=';
+
+let channels = [];
+let currentIndex = -1;
+let hls = null;
+let currentStreamUrl = '';
+let isUsingProxyFallback = false;
+let retryTimeout = null;
+let controlsTimeout = null;
+
+const video = document.getElementById('videoPlayer');
+const wrapper = document.getElementById('videoWrapper');
+
+// ─── AUTO-HIDE CONTROLS LOGIC ───────────────────────────────────────────────
+function resetControlsTimeout() {
+  wrapper.classList.remove('hide-controls');
+  clearTimeout(controlsTimeout);
+  
+  if (!video.paused) {
+    controlsTimeout = setTimeout(() => {
+      wrapper.classList.add('hide-controls');
+    }, 3000);
+  }
+}
+
+wrapper.addEventListener('mousemove', resetControlsTimeout);
+wrapper.addEventListener('touchmove', resetControlsTimeout);
+wrapper.addEventListener('touchstart', resetControlsTimeout);
+video.addEventListener('play', resetControlsTimeout);
+video.addEventListener('pause', () => {
+  wrapper.classList.remove('hide-controls');
+  clearTimeout(controlsTimeout);
+});
+
+// ─── LOAD CHANNELS MANUALLY ─────────────────────────────────────────────────
+function loadChannels() {
+  try {
+    // Filter out any empty named channels just in case
+    channels = channelsData.filter(c => c.name.trim());
+    document.getElementById('channelCount').textContent = channels.length + ' channels';
+    renderChannels(channels);
+    if (channels.length > 0) playChannel(0);
+  } catch (e) {
+    document.getElementById('channelCount').textContent = 'Load error';
+    showToast('⚠️ Failed to load channels');
+  }
+}
+
+// ─── FONTAWESOME CHANNEL ICONS ───────────────────────────────────────────────
+function getChannelIcon(name) {
+  const n = name.toLowerCase();
+  if (n.includes('bein') || n.includes('beIN')) return '<i class="fas fa-soccer-ball"></i>';
+  if (n.includes('cricket') || (n.includes('star') && n.includes('sport'))) return '<i class="fas fa-baseball-bat-ball"></i>';
+  if (n.includes('espn')) return '<i class="fas fa-football"></i>';
+  if (n.includes('fox')) return '<i class="fas fa-tv"></i>';
+  if (n.includes('btv') || n.includes('bangladesh') || n.includes('🇧🇩') || n.includes('sony')) return '<i class="fas fa-flag"></i>';
+  if (n.includes('red bull')) return '<i class="fas fa-bolt"></i>';
+  if (n.includes('tennis')) return '<i class="fas fa-table-tennis-paddle-ball"></i>';
+  if (n.includes('golf')) return '<i class="fas fa-golf-ball-tee"></i>';
+  if (n.includes('quran') || n.includes('sunnah')) return '<i class="fas fa-mosque"></i>';
+  if (n.includes('world cup') || n.includes('fifa') || n.includes('fwc')) return '<i class="fas fa-trophy"></i>';
+  if (n.includes('sport')) return '<i class="fas fa-medal"></i>';
+  return `<span class="txt-ico">${name.substring(0,2).toUpperCase()}</span>`;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderChannels(list) {
+  const container = document.getElementById('channelList');
+  container.innerHTML = '';
+  list.forEach((ch, i) => {
+    const realIdx = channels.indexOf(ch);
+    const div = document.createElement('div');
+    div.className = 'channel-item' + (realIdx === currentIndex ? ' active' : '');
+    div.id = 'ch-' + realIdx;
+    div.onclick = () => playChannel(realIdx);
+
+    const icon = getChannelIcon(ch.name);
+
+    div.innerHTML = `
+      <div class="ch-icon">${icon}</div>
+      <div class="ch-info">
+        <div class="ch-name">${esc(ch.name)}</div>
+        <div class="ch-tag"><span class="ch-live-dot"></span>LIVE</div>
+      </div>
+      <div class="ch-idx">${realIdx+1}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function filterChannels(q) {
+  const filtered = q.trim()
+    ? channels.filter(c => c.name.toLowerCase().includes(q.toLowerCase()))
+    : channels;
+  renderChannels(filtered);
+}
+
+// ─── PLAY ─────────────────────────────────────────────────────────────────────
+function playChannel(idx) {
+  if (idx < 0 || idx >= channels.length) return;
+  currentIndex = idx;
+  const ch = channels[idx];
+  currentStreamUrl = ch.url;
+  isUsingProxyFallback = false;
+
+  document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('ch-' + idx);
+  if (el) {
+    el.classList.add('active');
+    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  document.getElementById('nowPlayingName').textContent = ch.name;
+  document.getElementById('nowPlayingSub').textContent = 'MAHIN TV Live • Channel ' + (idx+1);
+  document.getElementById('ctrlLabel').textContent = ch.name;
+  document.getElementById('nowDot').style.background = 'var(--success)';
+  document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+
+  showLoading(true);
+  hideError();
+  clearRetry();
+
+  loadStream(ch.url);
+  showToast('📺 ' + ch.name);
+}
+
+function loadStream(url) {
+  if (hls) { hls.destroy(); hls = null; }
+  video.pause();
+
+  const isHLS = url.includes('.m3u8') || url.includes('.m3u');
+  const isMPD = url.includes('.mpd');
+
+  if (isHLS && Hls.isSupported()) {
+    hls = new Hls({
+      maxBufferLength: 30,
+      maxMaxBufferLength: 60,
+      enableWorker: true,
+      lowLatencyMode: true,
+      manifestLoadingTimeOut: 10000,
+      manifestLoadingMaxRetry: 2,
+    });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, (e, data) => {
+      showLoading(false);
+      populateQuality(data.levels);
+      video.play().catch(() => {});
+    });
+    hls.on(Hls.Events.ERROR, (e, data) => {
+      if (data.fatal) handleStreamError();
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl') && isHLS) {
+    video.src = url;
+    video.load();
+    video.play().then(() => showLoading(false)).catch(handleStreamError);
+  } else if (isMPD) {
+    video.src = url;
+    video.load();
+    video.play().then(() => showLoading(false)).catch(handleStreamError);
+  } else {
+    video.src = url;
+    video.load();
+    video.addEventListener('canplay', () => showLoading(false), { once: true });
+    video.play().catch(() => {});
+  }
+
+  video.onerror = handleStreamError;
+
+  retryTimeout = setTimeout(() => {
+    if (document.getElementById('loadingOverlay').classList.contains('hidden') === false) {
+      handleStreamError();
+    }
+  }, 12000);
+}
+
+function handleStreamError() {
+  const isBlockedProtocol = currentStreamUrl.startsWith('http://') || /^(http:\/\/)?\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(currentStreamUrl);
+  
+  if (window.location.protocol === 'https:' && isBlockedProtocol && !isUsingProxyFallback) {
+    isUsingProxyFallback = true;
+    clearRetry();
+    const secureProxyUrl = PROXY_SERVER + encodeURIComponent(currentStreamUrl);
+    console.log("Clearing Mixed Content Block. Auto-routing via proxy: ", secureProxyUrl);
+    loadStream(secureProxyUrl);
+    return;
+  }
+
+  showLoading(false);
+  showError();
+  document.getElementById('nowDot').style.background = 'var(--danger)';
+  clearRetry();
+}
+
+function clearRetry() {
+  if (retryTimeout) { clearTimeout(retryTimeout); retryTimeout = null; }
+}
+
+function retryStream() {
+  if (currentStreamUrl) {
+    hideError();
+    showLoading(true);
+    clearRetry();
+    isUsingProxyFallback = false;
+    loadStream(currentStreamUrl);
+  }
+}
+
+// ─── QUALITY ─────────────────────────────────────────────────────────────────
+function populateQuality(levels) {
+  const sel = document.getElementById('qualitySelect');
+  sel.innerHTML = '<option value="-1">Auto HD</option>';
+  levels.forEach((l, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = (l.height ? l.height + 'p' : '') + (l.bitrate ? ' ' + Math.round(l.bitrate/1000) + 'k' : '');
+    sel.appendChild(opt);
+  });
+}
+
+// ─── CONTROLS INTERACTIVE ────────────────────────────────────────────────────
+function setQuality(val) {
+  if (!hls) return;
+  hls.currentLevel = parseInt(val);
+  showToast('🎬 Quality: ' + (val == -1 ? 'Auto HD' : document.getElementById('qualitySelect').options[document.getElementById('qualitySelect').selectedIndex].text));
+}
+
+function togglePlay() {
+  if (video.paused) {
+    video.play();
+    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+  } else {
+    video.pause();
+    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+  }
+  resetControlsTimeout();
+}
+
+function toggleMute() {
+  video.muted = !video.muted;
+  document.getElementById('muteBtn').innerHTML = video.muted ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
+}
+
+function setVolume(v) {
+  video.volume = parseFloat(v);
+  video.muted = v == 0;
+  document.getElementById('muteBtn').innerHTML = v == 0 ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    (wrapper.requestFullscreen || wrapper.webkitRequestFullscreen || wrapper.mozRequestFullScreen).call(wrapper);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  }
+}
+
+async function togglePiP() {
+  try {
+    if (document.pictureInPictureElement) {
+      await document.exitPictureInPicture();
+      showToast('⧉ PiP closed');
+    } else {
+      await video.requestPictureInPicture();
+      showToast('⧉ Picture-in-Picture active');
+    }
+  } catch (e) {
+    showToast('⚠️ PiP not supported in this browser');
+  }
+}
+
+// Shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  if (e.code === 'KeyM') toggleMute();
+  if (e.code === 'KeyF') toggleFullscreen();
+  if (e.code === 'ArrowUp' && currentIndex > 0) playChannel(currentIndex - 1);
+  if (e.code === 'ArrowDown' && currentIndex < channels.length - 1) playChannel(currentIndex + 1);
+});
+
+// ─── FULLSCREEN & WATERMARK STATE ───────────────────────────────────────────
+document.addEventListener('fullscreenchange', updateFullscreenUI);
+document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
+function updateFullscreenUI() {
+  const wm = document.getElementById('watermark');
+  const fsBtn = document.getElementById('fullscreenBtn');
+  
+  if (document.fullscreenElement) {
+    wm.style.fontSize = '20px';
+    wm.style.bottom = '70px';
+    wm.style.left = '22px';
+    fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+  } else {
+    wm.style.fontSize = '';
+    wm.style.bottom = '';
+    wm.style.left = '';
+    fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+  }
+  resetControlsTimeout();
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function showLoading(v) {
+  document.getElementById('loadingOverlay').classList.toggle('hidden', !v);
+}
+
+function showError() {
+  document.getElementById('errorOverlay').classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorOverlay').classList.remove('show');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+loadChannels();
+</script>
+</body>
+</html>
